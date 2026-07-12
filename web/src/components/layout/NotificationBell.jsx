@@ -1,40 +1,20 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// ── Static mock notifications ─────────────────────────────────────────────
-const MOCK_NOTIFICATIONS = [
-  {
-    id: 1,
-    title: "Maintenance alert",
-    body: "Vehicle KBZ-4821 has an open maintenance record.",
-    time: "2m ago",
-    unread: true,
-  },
-  {
-    id: 2,
-    title: "License expiring soon",
-    body: "Driver J. Santos — license expires in 12 days.",
-    time: "18m ago",
-    unread: true,
-  },
-  {
-    id: 3,
-    title: "Trip completed",
-    body: "Trip #T-1042 from Makati to BGC was completed.",
-    time: "1h ago",
-    unread: false,
-  },
-];
+import { useAlerts } from "@/hooks/useAlerts";
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  // Read state is local — there's no server-side "seen" flag to persist to.
+  const [dismissed, setDismissed] = useState(() => new Set());
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  const { alerts, isLoading, isError } = useAlerts();
 
-  const markAllRead = () =>
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+  const unread = alerts.filter((alert) => !dismissed.has(alert.id));
+  const unreadCount = unread.length;
+
+  const markAllRead = () => setDismissed(new Set(alerts.map((a) => a.id)));
 
   return (
     <div className="relative">
@@ -102,47 +82,61 @@ export default function NotificationBell() {
           </div>
 
           {/* List */}
-          <ul className="divide-y divide-border" role="list">
-            {notifications.map((n) => (
-              <li
-                key={n.id}
-                className={cn(
-                  "flex gap-3 px-4 py-3 transition-colors duration-100",
-                  "hover:bg-accent cursor-pointer",
-                  n.unread && "bg-muted/40"
-                )}
-              >
-                {/* Unread dot */}
-                <div className="mt-1.5 flex shrink-0 items-start">
-                  <span
-                    className={cn(
-                      "h-1.5 w-1.5 rounded-full",
-                      n.unread ? "bg-foreground" : "bg-transparent"
-                    )}
-                  />
-                </div>
+          {isLoading ? (
+            <p className="px-4 py-6 text-center text-xs text-muted-foreground">
+              Loading…
+            </p>
+          ) : isError ? (
+            <p className="px-4 py-6 text-center text-xs text-muted-foreground">
+              Couldn&apos;t load alerts.
+            </p>
+          ) : alerts.length === 0 ? (
+            <p className="px-4 py-6 text-center text-xs text-muted-foreground">
+              Nothing needs attention.
+            </p>
+          ) : (
+            <ul className="max-h-80 divide-y divide-border overflow-y-auto" role="list">
+              {alerts.map((alert) => {
+                const isUnread = !dismissed.has(alert.id);
+                return (
+                  <li key={alert.id}>
+                    <Link
+                      to={alert.href}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex gap-3 px-4 py-3 transition-colors duration-100",
+                        "hover:bg-accent",
+                        isUnread && "bg-muted/40"
+                      )}
+                    >
+                      {/* Unread dot */}
+                      <div className="mt-1.5 flex shrink-0 items-start">
+                        <span
+                          className={cn(
+                            "h-1.5 w-1.5 rounded-full",
+                            !isUnread
+                              ? "bg-transparent"
+                              : alert.severity === "critical"
+                                ? "bg-destructive"
+                                : "bg-foreground"
+                          )}
+                        />
+                      </div>
 
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-semibold text-foreground">
-                    {n.title}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
-                    {n.body}
-                  </p>
-                  <p className="mt-1 text-[10px] text-muted-foreground/70">
-                    {n.time}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          {/* Footer */}
-          <div className="border-t border-border px-4 py-2.5">
-            <button className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors duration-150 focus-visible:outline-none focus-visible:underline">
-              View all notifications
-            </button>
-          </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-semibold text-foreground">
+                          {alert.title}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
+                          {alert.body}
+                        </p>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       )}
     </div>

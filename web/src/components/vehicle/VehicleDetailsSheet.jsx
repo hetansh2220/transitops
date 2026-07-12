@@ -1,58 +1,64 @@
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 import VehicleStatusBadge from "@/components/vehicle/VehicleStatusBadge";
+
+const Row = ({ label, value }) => (
+  <div>
+    <p className="text-xs text-muted-foreground">{label}</p>
+    <p className="mt-1 font-medium">{value ?? "—"}</p>
+  </div>
+);
+
+const number = (value) =>
+  value === null || value === undefined ? null : Number(value).toLocaleString();
 
 const VehicleDetailsSheet = ({ open, onOpenChange, vehicle }) => {
   if (!vehicle) return null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full max-w-lg border-l border-black/10 bg-white p-0 sm:max-w-lg">
-        <SheetHeader className="border-b border-black/10 p-6">
-          <SheetTitle className="text-xl">{vehicle.plateNumber}</SheetTitle>
+      <SheetContent side="right" className="w-full sm:max-w-lg">
+        <SheetHeader>
+          <SheetTitle className="text-xl">{vehicle.registrationNumber}</SheetTitle>
           <SheetDescription>
-            {vehicle.make} {vehicle.model} • {vehicle.year}
+            {[vehicle.name, vehicle.model].filter(Boolean).join(" • ")}
           </SheetDescription>
         </SheetHeader>
 
-        <div className="space-y-5 p-6">
+        <div className="space-y-6 px-4 pb-6">
           <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-black/60">Fleet asset</p>
-              <h3 className="mt-2 text-lg font-semibold">{vehicle.make} {vehicle.model}</h3>
-            </div>
+            <p className="text-sm text-muted-foreground">Current status</p>
             <VehicleStatusBadge status={vehicle.status} />
           </div>
 
-          <div className="grid gap-4 border border-black/10 p-4 sm:grid-cols-2">
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-black/60">Plate number</p>
-              <p className="mt-1 font-medium">{vehicle.plateNumber}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-black/60">Fuel type</p>
-              <p className="mt-1 font-medium">{vehicle.fuelType}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-black/60">Mileage</p>
-              <p className="mt-1 font-medium">{vehicle.mileage.toLocaleString()} mi</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-black/60">Assigned driver</p>
-              <p className="mt-1 font-medium">{vehicle.assignedDriver}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-black/60">Department</p>
-              <p className="mt-1 font-medium">{vehicle.department}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-black/60">Last service</p>
-              <p className="mt-1 font-medium">{vehicle.lastService}</p>
-            </div>
-          </div>
+          <Separator />
 
-          <div className="border border-black/10 p-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-black/60">Notes</p>
-            <p className="mt-3 text-sm leading-6 text-black/75">{vehicle.notes}</p>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Row label="Type" value={vehicle.type} />
+            <Row label="Region" value={vehicle.region} />
+            <Row
+              label="Max load capacity"
+              value={number(vehicle.maxLoadCapacity) && `${number(vehicle.maxLoadCapacity)} kg`}
+            />
+            <Row
+              label="Odometer"
+              value={number(vehicle.odometer) && `${number(vehicle.odometer)} km`}
+            />
+            <Row label="Acquisition cost" value={number(vehicle.acquisitionCost)} />
+            <Row
+              label="Added"
+              value={
+                vehicle.createdAt
+                  ? new Date(vehicle.createdAt).toLocaleDateString()
+                  : null
+              }
+            />
           </div>
         </div>
       </SheetContent>

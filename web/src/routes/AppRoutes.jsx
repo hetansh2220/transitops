@@ -19,7 +19,6 @@ import DashboardPage from "@/pages/dashboard/Dashboard";
 // Vehicles
 import VehicleListPage from "@/pages/vehicles/VehicleListPage";
 import VehicleDetailsPage from "@/pages/vehicles/VehicleDetailsPage";
-import VehicleFormPage from "@/pages/vehicles/VehicleFormPage";
 
 // Drivers
 import DriverListPage from "@/pages/drivers/DriverListPage";
@@ -80,13 +79,11 @@ const AppRoutes = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
 
           {/* ── Vehicles ────────────────────────────────── */}
+          {/* Create/edit happen in a dialog on the list page, so there are no
+              /new or /:id/edit routes here. */}
           <Route path="/vehicles">
             <Route index element={<VehicleListPage />} />
             <Route path=":id" element={<VehicleDetailsPage />} />
-            <Route element={<RoleRoute allow={WRITE_ROLES.vehicles} />}>
-              <Route path="new" element={<VehicleFormPage />} />
-              <Route path=":id/edit" element={<VehicleFormPage />} />
-            </Route>
           </Route>
 
           {/* ── Drivers ─────────────────────────────────── */}
