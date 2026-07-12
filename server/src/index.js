@@ -9,6 +9,8 @@ import tripRouter from './routes/tripRoutes.js';
 import fuelLogRouter from './routes/fuelLogRoutes.js';
 import maintenanceRouter from './routes/maintenanceRoutes.js';
 import expenseRouter from './routes/expenseRoutes.js';
+import dashboardRouter from './routes/dashboardRoutes.js';
+import reportRouter from './routes/reportRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,6 +30,8 @@ app.use('/api/trips', tripRouter);
 app.use('/api/fuel-logs', fuelLogRouter);
 app.use('/api/maintenance', maintenanceRouter);
 app.use('/api/expenses', expenseRouter);
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/reports', reportRouter);
 
 app.get('/', (req, res) => {
     res.send('Server is running');

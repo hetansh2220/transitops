@@ -1,6 +1,6 @@
 import db from '../config/db.js';
-import { drivers } from '../db/schema.js';
-import { eq } from 'drizzle-orm';
+import { drivers, trips } from '../db/schema.js';
+import { eq, sql } from 'drizzle-orm';
 
 export const getDrivers = async (req, res) => {
     try {
@@ -111,9 +111,33 @@ export const deleteDriver = async (req, res) => {
     try {
         const id = parseInt(req.params.id);
 
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({ error: 'Invalid driver id' });
+        }
+
         const [driver] = await db.select().from(drivers).where(eq(drivers.id, id));
         if (!driver) {
             return res.status(404).json({ error: 'Driver not found' });
+        }
+
+        if (driver.status === 'on_trip') {
+            return res.status(409).json({
+                error: 'Driver is on a trip. Complete or cancel the trip before removing them.',
+            });
+        }
+
+        // Trips reference the driver, so deleting one with history would either
+        // fail on the foreign key or destroy the trip record behind it. Suspending
+        // keeps the history intact, which is what the reports rely on.
+        const [{ tripCount }] = await db
+            .select({ tripCount: sql`count(*)::int` })
+            .from(trips)
+            .where(eq(trips.driverId, id));
+
+        if (Number(tripCount) > 0) {
+            return res.status(409).json({
+                error: `Driver has ${tripCount} trip(s) on record and cannot be deleted. Set their status to 'suspended' or 'off_duty' instead.`,
+            });
         }
 
         await db.delete(drivers).where(eq(drivers.id, id));
