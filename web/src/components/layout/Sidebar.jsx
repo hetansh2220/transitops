@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NAV_GROUPS } from "@/constants/sidebar";
+import { useNavGroups } from "@/hooks/useNavGroups";
 
 // ─── Shared nav item used by both desktop and mobile ───────────────────────
 
@@ -93,6 +93,8 @@ const SIDEBAR_W_EXPANDED = "w-60";
 const SIDEBAR_W_COLLAPSED = "w-[60px]";
 
 export default function Sidebar({ collapsed, onToggle }) {
+  const navGroups = useNavGroups();
+
   return (
     <aside
       id="sidebar"
@@ -139,7 +141,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2 flex flex-col gap-5"
         aria-label="Sidebar navigation"
       >
-        {NAV_GROUPS.map((group) => (
+        {navGroups.map((group) => (
           <NavGroup key={group.label} group={group} collapsed={collapsed} />
         ))}
       </nav>
