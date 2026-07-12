@@ -35,19 +35,7 @@ app.use('/api/dashboard', dashboardRouter);
 app.use('/api/reports', reportRouter);
 
 app.get('/', (req, res) => {
-    res.type('html').send(`
-    <!doctype html>
-    <html>
-      <head>
-        <meta charset="utf-8"/>
-        <title>Express server</title>
-        <link rel="stylesheet" href="/style.css" />
-      </head>
-      <body>
-        <h1>Welcome to Express on Vercel 🚀</h1>
-      </body>
-    </html>
-  `)
+    res.send("Server is running")
 })
 
 // Health check
