@@ -5,6 +5,8 @@ import authRouter from './routes/authRoutes.js';
 import roleRouter from './routes/roleRoutes.js';
 import vehicleRouter from './routes/vehicleRoutes.js';
 import driverRouter from './routes/driverRoutes.js';
+import maintenanceRouter from './routes/maintenanceRoutes.js';
+import expenseRouter from './routes/expenseRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,6 +22,8 @@ app.use('/api/auth', authRouter);
 app.use('/api/vehicles', vehicleRouter);
 app.use('/api', roleRouter);
 app.use('/api/drivers', driverRouter);
+app.use('/api/maintenance', maintenanceRouter);
+app.use('/api/expenses', expenseRouter);
 
 app.get('/', (req, res) => {
     res.send('Server is running');
