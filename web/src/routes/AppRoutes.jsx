@@ -53,7 +53,6 @@ const AppRoutes = () => {
 
           <Route path="/dashboard" element={<DashboardPage />} />
 
-          <Route path="/vehicles">
           {/* ── Vehicles ────────────────────────────────── */}
           {/* Create/edit happen in a dialog on the list page, so there are no
               /new or /:id/edit routes here. */}
@@ -62,7 +61,6 @@ const AppRoutes = () => {
             <Route path=":id" element={<VehicleDetailsPage />} />
           </Route>
 
-          <Route path="/drivers">
           {/* ── Drivers ─────────────────────────────────── */}
           <Route path="/drivers" element={<RoleRoute allow={VIEW_ROLES.drivers} />}>
             <Route index element={<DriverListPage />} />
@@ -73,7 +71,6 @@ const AppRoutes = () => {
             </Route>
           </Route>
 
-          <Route path="/trips">
           {/* ── Trips ───────────────────────────────────── */}
           <Route path="/trips" element={<RoleRoute allow={VIEW_ROLES.trips} />}>
             <Route index element={<TripListPage />} />
@@ -84,7 +81,6 @@ const AppRoutes = () => {
             </Route>
           </Route>
 
-          <Route path="/maintenance">
           {/* ── Maintenance ─────────────────────────────── */}
           <Route
             path="/maintenance"
@@ -97,7 +93,6 @@ const AppRoutes = () => {
             </Route>
           </Route>
 
-          <Route path="/fuel">
           {/* ── Fuel Logs ───────────────────────────────── */}
           <Route path="/fuel" element={<RoleRoute allow={VIEW_ROLES.fuelLogs} />}>
             <Route index element={<FuelLogListPage />} />
@@ -107,7 +102,6 @@ const AppRoutes = () => {
             </Route>
           </Route>
 
-          <Route path="/expenses">
           {/* ── Expenses ────────────────────────────────── */}
           <Route path="/expenses" element={<RoleRoute allow={VIEW_ROLES.expenses} />}>
             <Route index element={<ExpenseListPage />} />
@@ -117,7 +111,6 @@ const AppRoutes = () => {
             </Route>
           </Route>
 
-          <Route path="/reports" element={<ReportsPage />} />
           {/* ── Reports ─────────────────────────────────── */}
           <Route path="/reports" element={<RoleRoute allow={VIEW_ROLES.reports} />}>
             <Route index element={<ReportsPage />} />

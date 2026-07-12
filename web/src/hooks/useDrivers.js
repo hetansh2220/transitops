@@ -1,13 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { listDrivers, getDriver } from "@/api/drivers";
-
-const KEY = "drivers";
-
-export const useDrivers = () =>
-  useQuery({
-    queryKey: [KEY],
-    queryFn: listDrivers,
-  });
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {

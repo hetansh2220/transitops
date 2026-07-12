@@ -1,10 +1,13 @@
+import { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Search, ChevronRight } from "lucide-react";
+import { Search, ChevronRight, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { NAV_GROUPS } from "@/constants/sidebar";
 import NotificationBell from "@/components/layout/NotificationBell";
 import UserDropdown from "@/components/layout/UserDropdown";
 import MobileSidebar from "@/components/layout/MobileSidebar";
+import CommandPalette from "@/components/layout/CommandPalette";
 
 // ── Route metadata lookup ─────────────────────────────────────────────────
 // Flatten all nav items into a path → label map for breadcrumb resolution.
@@ -60,36 +63,70 @@ function useBreadcrumbs() {
   );
 }
 
-// ── Search bar ─────────────────────────────────────────────────────────────
-function GlobalSearch() {
+// ── Search trigger ─────────────────────────────────────────────────────────
+// A button, not a text input: typing happens inside the ⌘K palette. A real
+// field here would be a decoy that swallows keystrokes and does nothing.
+function GlobalSearch({ onOpen }) {
   return (
-    <div className="relative flex-1 max-w-xs hidden sm:flex items-center">
+    <button
+      id="global-search"
+      type="button"
+      onClick={onOpen}
+      aria-label="Search"
+      aria-keyshortcuts="Meta+K Control+K"
+      className={cn(
+        "relative flex-1 max-w-xs hidden sm:flex items-center",
+        "h-8 rounded-md border border-input bg-transparent pl-8 pr-3",
+        "text-sm text-muted-foreground transition-colors duration-150",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-1",
+        "hover:border-foreground/30 hover:text-foreground"
+      )}
+    >
       <Search
         size={14}
         aria-hidden="true"
-        className="absolute left-2.5 text-muted-foreground pointer-events-none"
+        className="absolute left-2.5 pointer-events-none"
       />
-      <input
-        id="global-search"
-        type="search"
-        placeholder="Search…"
-        aria-label="Global search"
-        className={cn(
-          "h-8 w-full rounded-md border border-input bg-transparent pl-8 pr-3",
-          "text-sm text-foreground placeholder:text-muted-foreground",
-          "transition-colors duration-150",
-          "focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-1",
-          "hover:border-foreground/30"
-        )}
-      />
-      {/* Keyboard shortcut hint */}
+      <span>Search…</span>
+
       <kbd
         aria-hidden="true"
-        className="pointer-events-none absolute right-2 hidden h-5 select-none items-center gap-1 rounded border border-border px-1.5 font-mono text-[10px] text-muted-foreground sm:flex"
+        className="pointer-events-none absolute right-2 hidden h-5 select-none items-center gap-1 rounded border border-border px-1.5 font-mono text-[10px] sm:flex"
       >
         ⌘K
       </kbd>
-    </div>
+    </button>
+  );
+}
+
+// ── Theme toggle ───────────────────────────────────────────────────────────
+function ThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // resolvedTheme is undefined until hydration; wait so the icon doesn't flip.
+  useEffect(() => setMounted(true), []);
+
+  const isDark = resolvedTheme === "dark";
+
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      className={cn(
+        "flex h-8 w-8 items-center justify-center rounded-md",
+        "text-muted-foreground transition-colors duration-150",
+        "hover:bg-accent hover:text-accent-foreground",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-1"
+      )}
+    >
+      {mounted && isDark ? (
+        <Sun size={17} aria-hidden="true" />
+      ) : (
+        <Moon size={17} aria-hidden="true" />
+      )}
+    </button>
   );
 }
 
@@ -148,6 +185,20 @@ function MobilePageTitle({ crumbs }) {
 // ── Navbar ─────────────────────────────────────────────────────────────────
 export default function Navbar({ mobileOpen, onMobileOpenChange }) {
   const crumbs = useBreadcrumbs();
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  // ⌘K / Ctrl-K opens the palette from anywhere in the app.
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        setPaletteOpen((open) => !open);
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   return (
     <header
@@ -170,7 +221,7 @@ export default function Navbar({ mobileOpen, onMobileOpenChange }) {
 
       {/* ── Right section ────────────────────────────── */}
       <div className="flex shrink-0 items-center gap-2">
-        <GlobalSearch />
+        <GlobalSearch onOpen={() => setPaletteOpen(true)} />
 
         {/* Divider */}
         <div
@@ -178,6 +229,7 @@ export default function Navbar({ mobileOpen, onMobileOpenChange }) {
           className="hidden sm:block h-5 w-px bg-border"
         />
 
+        <ThemeToggle />
         <NotificationBell />
 
         {/* Divider */}
@@ -185,6 +237,8 @@ export default function Navbar({ mobileOpen, onMobileOpenChange }) {
 
         <UserDropdown />
       </div>
+
+      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
     </header>
   );
 }
