@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User,
@@ -6,15 +7,6 @@ import {
   ChevronDown,
   Shield,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuGroup,
-} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -22,6 +14,7 @@ import { ROLE_LABELS } from "@/lib/permissions";
 
 // "Test Manager" → "TM"
 function initialsOf(name) {
+  if (!name) return "";
   return name
     .split(" ")
     .filter(Boolean)
@@ -33,6 +26,18 @@ function initialsOf(name) {
 export default function UserDropdown() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   if (!user) return null;
 
@@ -43,16 +48,17 @@ export default function UserDropdown() {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
+    <div className="relative" ref={dropdownRef}>
+      <button
         id="user-menu-trigger"
+        onClick={() => setIsOpen(!isOpen)}
         aria-label={`User menu for ${user.name}`}
         className={cn(
-          "flex items-center gap-2 rounded-md px-2 py-1.5",
+          "flex items-center gap-2 rounded-md px-2 py-1.5 cursor-pointer",
           "text-sm font-medium text-foreground",
           "hover:bg-accent transition-colors duration-150",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-1",
-          "aria-expanded:bg-accent"
+          isOpen && "bg-accent"
         )}
       >
         {/* Avatar */}
@@ -72,63 +78,73 @@ export default function UserDropdown() {
           aria-hidden="true"
           className="shrink-0 text-muted-foreground"
         />
-      </DropdownMenuTrigger>
+      </button>
 
-      <DropdownMenuContent
-        align="end"
-        side="bottom"
-        sideOffset={8}
-        className="w-56"
-      >
-        {/* Identity block */}
-        <DropdownMenuLabel className="px-2 py-2">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-semibold text-foreground">
-              {user.name}
-            </span>
-            <span className="text-xs text-muted-foreground truncate">
-              {user.email}
-            </span>
-            <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
-              <Shield size={10} aria-hidden="true" />
-              {ROLE_LABELS[user.role] ?? user.role}
-            </span>
-          </div>
-        </DropdownMenuLabel>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuGroup>
-          <DropdownMenuItem
-            id="menu-profile"
-            onClick={() => navigate("/settings")}
-            className="gap-2 cursor-pointer"
-          >
-            <User size={14} aria-hidden="true" />
-            Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            id="menu-settings"
-            onClick={() => navigate("/settings")}
-            className="gap-2 cursor-pointer"
-          >
-            <Settings size={14} aria-hidden="true" />
-            Settings
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem
-          id="menu-logout"
-          variant="destructive"
-          onClick={handleLogout}
-          className="gap-2 cursor-pointer"
+      {isOpen && (
+        <div
+          className={cn(
+            "absolute right-0 top-full mt-2 w-56 z-50 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 focus:outline-none"
+          )}
         >
-          <LogOut size={14} aria-hidden="true" />
-          Log out
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          {/* Identity block */}
+          <div className="px-2.5 py-2">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-semibold text-foreground">
+                {user.name}
+              </span>
+              <span className="text-xs text-muted-foreground truncate">
+                {user.email}
+              </span>
+              <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                <Shield size={10} aria-hidden="true" />
+                {ROLE_LABELS[user.role] ?? user.role}
+              </span>
+            </div>
+          </div>
+
+          <div className="-mx-1 my-1 h-px bg-border" />
+
+          <div className="flex flex-col gap-0.5">
+            <button
+              id="menu-profile"
+              onClick={() => {
+                setIsOpen(false);
+                navigate("/settings");
+              }}
+              className="w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors duration-150"
+            >
+              <User size={14} aria-hidden="true" />
+              Profile
+            </button>
+            <button
+              id="menu-settings"
+              onClick={() => {
+                setIsOpen(false);
+                navigate("/settings");
+              }}
+              className="w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors duration-150"
+            >
+              <Settings size={14} aria-hidden="true" />
+              Settings
+            </button>
+          </div>
+
+          <div className="-mx-1 my-1 h-px bg-border" />
+
+          <button
+            id="menu-logout"
+            onClick={() => {
+              setIsOpen(false);
+              handleLogout();
+            }}
+            className="w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left hover:bg-destructive/10 hover:text-destructive text-destructive cursor-pointer transition-colors duration-150"
+          >
+            <LogOut size={14} aria-hidden="true" />
+            Log out
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
+

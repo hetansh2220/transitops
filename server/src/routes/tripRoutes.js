@@ -7,22 +7,22 @@ import {
     cancelTrip,
     listTrips,
     getTrip,
+    updateTrip,
+    deleteTrip,
 } from '../controllers/tripController.js';
 
 const router = express.Router();
 
 router.use(authenticateToken);
 
-
 router.get('/', listTrips);
 router.get('/:id', getTrip);
 
-
-// Per the RBAC matrix, only the dispatcher runs the trip lifecycle. Every other
-// role can read the board but not write to it.
 const canDispatch = requireRole(['dispatcher']);
 
 router.post('/', canDispatch, createTrip);
+router.put('/:id', canDispatch, updateTrip);
+router.delete('/:id', canDispatch, deleteTrip);
 router.post('/:id/dispatch', canDispatch, dispatchTrip);
 router.post('/:id/complete', canDispatch, completeTrip);
 router.post('/:id/cancel', canDispatch, cancelTrip);

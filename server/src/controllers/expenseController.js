@@ -14,8 +14,6 @@ const isPositiveNumber = (value) =>
 
 const isValidDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !isNaN(Date.parse(value));
 
-// A trip-tagged expense must belong to that trip's vehicle, or the per-vehicle
-// cost reports are wrong.
 const checkTrip = async (tripId, vehicleId) => {
     const tId = parseId(tripId);
     if (!tId) return { error: 'Invalid tripId', status: 400 };
