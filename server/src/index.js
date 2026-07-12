@@ -7,6 +7,8 @@ import vehicleRouter from './routes/vehicleRoutes.js';
 import driverRouter from './routes/driverRoutes.js';
 import tripRouter from './routes/tripRoutes.js';
 import fuelLogRouter from './routes/fuelLogRoutes.js';
+import maintenanceRouter from './routes/maintenanceRoutes.js';
+import expenseRouter from './routes/expenseRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -24,6 +26,8 @@ app.use('/api', roleRouter);
 app.use('/api/drivers', driverRouter);
 app.use('/api/trips', tripRouter);
 app.use('/api/fuel-logs', fuelLogRouter);
+app.use('/api/maintenance', maintenanceRouter);
+app.use('/api/expenses', expenseRouter);
 
 app.get('/', (req, res) => {
     res.send('Server is running');
