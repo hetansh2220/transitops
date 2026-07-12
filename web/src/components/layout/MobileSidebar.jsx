@@ -2,12 +2,13 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { NAV_GROUPS } from "@/constants/sidebar";
+import { useNavGroups } from "@/hooks/useNavGroups";
 import { NavItem } from "@/components/layout/Sidebar";
 import { cn } from "@/lib/utils";
 
 export default function MobileSidebar({ open, onOpenChange }) {
   const location = useLocation();
+  const navGroups = useNavGroups();
 
   // Close sheet on navigation
   useEffect(() => {
@@ -62,7 +63,7 @@ export default function MobileSidebar({ open, onOpenChange }) {
           className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-5"
           aria-label="Mobile navigation"
         >
-          {NAV_GROUPS.map((group) => (
+          {navGroups.map((group) => (
             <div key={group.label} className="flex flex-col gap-0.5">
               <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 select-none">
                 {group.label}
