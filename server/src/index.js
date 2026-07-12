@@ -34,11 +34,24 @@ app.use('/api/dashboard', dashboardRouter);
 app.use('/api/reports', reportRouter);
 
 app.get('/', (req, res) => {
-    res.send('Server is running');
-});
+    res.type('html').send(`
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <title>Express server</title>
+        <link rel="stylesheet" href="/style.css" />
+      </head>
+      <body>
+        <h1>Welcome to Express on Vercel 🚀</h1>
+      </body>
+    </html>
+  `)
+})
 
-app.listen(port, () => {
-    console.log(`Express server running on port ${port}`);
-});
+
+// app.listen(port, () => {
+//     console.log(`Express server running on port ${port}`);
+// });
 
 export default app;
