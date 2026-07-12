@@ -5,12 +5,16 @@ import { authenticateToken, requireRole } from '../middleware/auth.js';
 const router = express.Router();
 
 router.use(authenticateToken);
-router.use(requireRole(['safety_officer', 'fleet_manager']));
 
+// Dispatchers must read drivers to fill the trip-assignment dropdown.
 router.get('/', getDrivers);
 router.get('/:id', getDriverById);
-router.post('/', createDriver);
-router.put('/:id', updateDriver);
-router.delete('/:id', deleteDriver);
+
+// Safety officers own driver compliance; fleet managers own the roster.
+const canManage = requireRole(['safety_officer', 'fleet_manager']);
+
+router.post('/', canManage, createDriver);
+router.put('/:id', canManage, updateDriver);
+router.delete('/:id', canManage, deleteDriver);
 
 export default router;
