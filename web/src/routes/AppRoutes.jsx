@@ -7,7 +7,7 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 // Guards
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import RoleRoute from "@/routes/RoleRoute";
-import { WRITE_ROLES } from "@/lib/permissions";
+import { VIEW_ROLES, WRITE_ROLES } from "@/lib/permissions";
 
 // Auth pages
 import LoginPage from "@/pages/auth/Login";
@@ -81,13 +81,13 @@ const AppRoutes = () => {
           {/* ── Vehicles ────────────────────────────────── */}
           {/* Create/edit happen in a dialog on the list page, so there are no
               /new or /:id/edit routes here. */}
-          <Route path="/vehicles">
+          <Route path="/vehicles" element={<RoleRoute allow={VIEW_ROLES.vehicles} />}>
             <Route index element={<VehicleListPage />} />
             <Route path=":id" element={<VehicleDetailsPage />} />
           </Route>
 
           {/* ── Drivers ─────────────────────────────────── */}
-          <Route path="/drivers">
+          <Route path="/drivers" element={<RoleRoute allow={VIEW_ROLES.drivers} />}>
             <Route index element={<DriverListPage />} />
             <Route path=":id" element={<DriverDetailsPage />} />
             <Route element={<RoleRoute allow={WRITE_ROLES.drivers} />}>
@@ -97,7 +97,7 @@ const AppRoutes = () => {
           </Route>
 
           {/* ── Trips ───────────────────────────────────── */}
-          <Route path="/trips">
+          <Route path="/trips" element={<RoleRoute allow={VIEW_ROLES.trips} />}>
             <Route index element={<TripListPage />} />
             <Route path=":id" element={<TripDetailsPage />} />
             <Route element={<RoleRoute allow={WRITE_ROLES.trips} />}>
@@ -107,7 +107,10 @@ const AppRoutes = () => {
           </Route>
 
           {/* ── Maintenance ─────────────────────────────── */}
-          <Route path="/maintenance">
+          <Route
+            path="/maintenance"
+            element={<RoleRoute allow={VIEW_ROLES.maintenance} />}
+          >
             <Route index element={<MaintenanceListPage />} />
             <Route path=":id" element={<MaintenanceDetailsPage />} />
             <Route element={<RoleRoute allow={WRITE_ROLES.maintenance} />}>
@@ -116,7 +119,7 @@ const AppRoutes = () => {
           </Route>
 
           {/* ── Fuel Logs ───────────────────────────────── */}
-          <Route path="/fuel">
+          <Route path="/fuel" element={<RoleRoute allow={VIEW_ROLES.fuelLogs} />}>
             <Route index element={<FuelLogListPage />} />
             <Route element={<RoleRoute allow={WRITE_ROLES.fuelLogs} />}>
               <Route path="new" element={<FuelLogFormPage />} />
@@ -124,7 +127,7 @@ const AppRoutes = () => {
           </Route>
 
           {/* ── Expenses ────────────────────────────────── */}
-          <Route path="/expenses">
+          <Route path="/expenses" element={<RoleRoute allow={VIEW_ROLES.expenses} />}>
             <Route index element={<ExpenseListPage />} />
             <Route element={<RoleRoute allow={WRITE_ROLES.expenses} />}>
               <Route path="new" element={<ExpenseFormPage />} />
@@ -132,7 +135,9 @@ const AppRoutes = () => {
           </Route>
 
           {/* ── Reports ─────────────────────────────────── */}
-          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/reports" element={<RoleRoute allow={VIEW_ROLES.reports} />}>
+            <Route index element={<ReportsPage />} />
+          </Route>
 
           {/* ── Settings ────────────────────────────────── */}
           <Route path="/settings" element={<SettingsPage />} />
