@@ -20,6 +20,19 @@ const generateRefreshToken = (user) => {
     );
 };
 
+// Once deployed, the web app and the API sit on different Vercel domains, so the
+// cookie is cross-site: 'strict' would stop the browser sending it to /auth/refresh
+// at all. 'none' requires Secure, which is fine over https but not on localhost.
+const isDeployed = process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
+
+const refreshCookieOptions = {
+    httpOnly: true,
+    secure: isDeployed,
+    sameSite: isDeployed ? 'none' : 'lax',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
 export const register = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
@@ -50,12 +63,7 @@ export const register = async (req, res) => {
         const accessToken = generateAccessToken(newUser);
         const refreshToken = generateRefreshToken(newUser);
 
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
+        res.cookie('refreshToken', refreshToken, refreshCookieOptions);
 
         res.status(201).json({
             user: {
@@ -92,12 +100,7 @@ export const login = async (req, res) => {
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
 
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
+        res.cookie('refreshToken', refreshToken, refreshCookieOptions);
 
         res.json({
             user: {
@@ -141,7 +144,9 @@ export const refresh = async (req, res) => {
 
 export const logout = (req, res) => {
     try {
-        res.clearCookie('refreshToken');
+        // Attributes must match the ones it was set with, or the browser keeps it.
+        const { maxAge, ...clearOptions } = refreshCookieOptions;
+        res.clearCookie('refreshToken', clearOptions);
         res.json({ message: 'Logged out successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });

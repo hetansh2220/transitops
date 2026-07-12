@@ -20,21 +20,20 @@ const allowedOrigins = [
     'https://transitops-six-sigma.vercel.app',
     'http://localhost:3000',
     'http://localhost:5173',
+    ...(process.env.CORS_ORIGINS?.split(',').map((o) => o.trim()).filter(Boolean) ?? []),
 ];
 
 const corsOptions = {
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            return callback(null, true);
-        }
-
-        return callback(new Error('Not allowed by CORS'));
-    },
+    // Rejecting with an Error would surface as a 500 with no CORS headers, which
+    // reads as "CORS is broken" in the browser. Answering false just omits the
+    // headers, so the browser reports the actual reason: origin not allowed.
+    origin: (origin, callback) => callback(null, !origin || allowedOrigins.includes(origin)),
     credentials: true,
 };
 
+// This also answers preflights: the cors middleware ends OPTIONS requests itself.
+// Do not add an app.options() route — Express 5's router rejects a bare '*' path.
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -55,9 +54,15 @@ app.get('/', (req, res) => {
 })
 
 // Health check
+app.get(['/healthz', '/api/healthz'], (req, res) => {
+    res.json({ status: 'ok' });
+});
 
-// app.listen(port, () => {
-//     console.log(`Express server running on port ${port}`);
-// });
+// Vercel invokes the exported app per request; only listen when run directly.
+if (!process.env.VERCEL) {
+    app.listen(port, () => {
+        console.log(`Express server running on port ${port}`);
+    });
+}
 
 export default app;
