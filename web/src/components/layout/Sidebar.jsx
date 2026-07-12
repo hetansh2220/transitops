@@ -101,7 +101,7 @@ export default function Sidebar({ collapsed, onToggle }) {
       aria-label="Main navigation"
       className={cn(
         // Layout
-        "relative hidden md:flex flex-col h-screen shrink-0",
+        "relative hidden md:flex flex-col h-full shrink-0",
         "border-r border-border bg-sidebar",
         // Smooth width transition
         "transition-[width] duration-300 ease-in-out overflow-hidden",
