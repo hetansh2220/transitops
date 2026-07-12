@@ -12,7 +12,7 @@ This project was built for **oddo heckathon 2026** by team **crewd**.
 *   **Hetansh**
 *   **Manan**
 *   **Darsh**
-*   **Drumil**
+*   **Dhrumil**
 
 ### Hashtags
 `#heckathon2026` `#oddoheckathon`
