@@ -164,7 +164,3 @@ The seed script creates pre-configured accounts with different roles for testing
 | **Financial Analyst** | `analyst@transitops.demo` | Can view and audit expenses, fuel logs, and financial metrics. |
 
 ---
-
-## 📝 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
