@@ -1,3 +1,8 @@
+import React from 'react'
+import VehicleListPage from '@/pages/vehicles/VehicleListPage'
+
+function App() {
+  return <VehicleListPage />
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "@/routes/AppRoutes";
 
