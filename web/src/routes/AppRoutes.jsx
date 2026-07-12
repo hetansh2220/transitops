@@ -4,6 +4,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
 
+// Guards
+import ProtectedRoute from "@/routes/ProtectedRoute";
+import RoleRoute from "@/routes/RoleRoute";
+import { WRITE_ROLES } from "@/lib/permissions";
+
 // Auth pages
 import LoginPage from "@/pages/auth/Login";
 import RegisterPage from "@/pages/auth/Register";
@@ -12,31 +17,31 @@ import RegisterPage from "@/pages/auth/Register";
 import DashboardPage from "@/pages/dashboard/Dashboard";
 
 // Vehicles
-import VehiclesListPage from "@/pages/vehicles/VehiclesListPage";
-import VehicleDetailPage from "@/pages/vehicles/VehicleDetailPage";
+import VehicleListPage from "@/pages/vehicles/VehicleListPage";
+import VehicleDetailsPage from "@/pages/vehicles/VehicleDetailsPage";
 import VehicleFormPage from "@/pages/vehicles/VehicleFormPage";
 
 // Drivers
-import DriversListPage from "@/pages/drivers/DriversListPage";
-import DriverDetailPage from "@/pages/drivers/DriverDetailPage";
+import DriverListPage from "@/pages/drivers/DriverListPage";
+import DriverDetailsPage from "@/pages/drivers/DriverDetailsPage";
 import DriverFormPage from "@/pages/drivers/DriverFormPage";
 
 // Trips
-import TripsListPage from "@/pages/trips/TripsListPage";
-import TripDetailPage from "@/pages/trips/TripDetailPage";
+import TripListPage from "@/pages/trips/TripListPage";
+import TripDetailsPage from "@/pages/trips/TripDetailsPage";
 import TripFormPage from "@/pages/trips/TripFormPage";
 
 // Maintenance
 import MaintenanceListPage from "@/pages/maintenance/MaintenanceListPage";
-import MaintenanceDetailPage from "@/pages/maintenance/MaintenanceDetailPage";
+import MaintenanceDetailsPage from "@/pages/maintenance/MaintenanceDetailsPage";
 import MaintenanceFormPage from "@/pages/maintenance/MaintenanceFormPage";
 
 // Fuel Logs
-import FuelLogsListPage from "@/pages/fuel/FuelLogsListPage";
+import FuelLogListPage from "@/pages/fuel/FuelLogListPage";
 import FuelLogFormPage from "@/pages/fuel/FuelLogFormPage";
 
 // Expenses
-import ExpensesListPage from "@/pages/expenses/ExpensesListPage";
+import ExpenseListPage from "@/pages/expenses/ExpenseListPage";
 import ExpenseFormPage from "@/pages/expenses/ExpenseFormPage";
 
 // Reports
@@ -62,65 +67,79 @@ const AppRoutes = () => {
 
       {/* ─────────────────────────────────────────────────
           AUTHENTICATED ROUTES
-          All protected pages nested under DashboardLayout.
-          ProtectedRoute guard will be added here once
-          AuthContext is wired up.
+          ProtectedRoute redirects to /login when signed out.
+          RoleRoute mirrors requireRole() in server/src/routes —
+          it hides UI only; the backend is the real gate.
           ───────────────────────────────────────────────── */}
-      <Route element={<DashboardLayout />}>
-        {/* Root redirect → Dashboard */}
-        <Route index element={<Navigate to="/dashboard" replace />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          {/* Root redirect → Dashboard */}
+          <Route index element={<Navigate to="/dashboard" replace />} />
 
-        {/* Dashboard */}
-        <Route path="/dashboard" element={<DashboardPage />} />
+          {/* Dashboard */}
+          <Route path="/dashboard" element={<DashboardPage />} />
 
-        {/* ── Vehicles ────────────────────────────────── */}
-        <Route path="/vehicles">
-          <Route index element={<VehiclesListPage />} />
-          <Route path="new" element={<VehicleFormPage />} />
-          <Route path=":id" element={<VehicleDetailPage />} />
-          <Route path=":id/edit" element={<VehicleFormPage />} />
+          {/* ── Vehicles ────────────────────────────────── */}
+          <Route path="/vehicles">
+            <Route index element={<VehicleListPage />} />
+            <Route path=":id" element={<VehicleDetailsPage />} />
+            <Route element={<RoleRoute allow={WRITE_ROLES.vehicles} />}>
+              <Route path="new" element={<VehicleFormPage />} />
+              <Route path=":id/edit" element={<VehicleFormPage />} />
+            </Route>
+          </Route>
+
+          {/* ── Drivers ─────────────────────────────────── */}
+          <Route path="/drivers">
+            <Route index element={<DriverListPage />} />
+            <Route path=":id" element={<DriverDetailsPage />} />
+            <Route element={<RoleRoute allow={WRITE_ROLES.drivers} />}>
+              <Route path="new" element={<DriverFormPage />} />
+              <Route path=":id/edit" element={<DriverFormPage />} />
+            </Route>
+          </Route>
+
+          {/* ── Trips ───────────────────────────────────── */}
+          <Route path="/trips">
+            <Route index element={<TripListPage />} />
+            <Route path=":id" element={<TripDetailsPage />} />
+            <Route element={<RoleRoute allow={WRITE_ROLES.trips} />}>
+              <Route path="new" element={<TripFormPage />} />
+              <Route path=":id/edit" element={<TripFormPage />} />
+            </Route>
+          </Route>
+
+          {/* ── Maintenance ─────────────────────────────── */}
+          <Route path="/maintenance">
+            <Route index element={<MaintenanceListPage />} />
+            <Route path=":id" element={<MaintenanceDetailsPage />} />
+            <Route element={<RoleRoute allow={WRITE_ROLES.maintenance} />}>
+              <Route path="new" element={<MaintenanceFormPage />} />
+            </Route>
+          </Route>
+
+          {/* ── Fuel Logs ───────────────────────────────── */}
+          <Route path="/fuel">
+            <Route index element={<FuelLogListPage />} />
+            <Route element={<RoleRoute allow={WRITE_ROLES.fuelLogs} />}>
+              <Route path="new" element={<FuelLogFormPage />} />
+            </Route>
+          </Route>
+
+          {/* ── Expenses ────────────────────────────────── */}
+          <Route path="/expenses">
+            <Route index element={<ExpenseListPage />} />
+            <Route element={<RoleRoute allow={WRITE_ROLES.expenses} />}>
+              <Route path="new" element={<ExpenseFormPage />} />
+            </Route>
+          </Route>
+
+          {/* ── Reports ─────────────────────────────────── */}
+          <Route path="/reports" element={<ReportsPage />} />
+
+          {/* ── Settings ────────────────────────────────── */}
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
-
-        {/* ── Drivers ─────────────────────────────────── */}
-        <Route path="/drivers">
-          <Route index element={<DriversListPage />} />
-          <Route path="new" element={<DriverFormPage />} />
-          <Route path=":id" element={<DriverDetailPage />} />
-          <Route path=":id/edit" element={<DriverFormPage />} />
-        </Route>
-
-        {/* ── Trips ───────────────────────────────────── */}
-        <Route path="/trips">
-          <Route index element={<TripsListPage />} />
-          <Route path="new" element={<TripFormPage />} />
-          <Route path=":id" element={<TripDetailPage />} />
-          <Route path=":id/edit" element={<TripFormPage />} />
-        </Route>
-
-        {/* ── Maintenance ─────────────────────────────── */}
-        <Route path="/maintenance">
-          <Route index element={<MaintenanceListPage />} />
-          <Route path="new" element={<MaintenanceFormPage />} />
-          <Route path=":id" element={<MaintenanceDetailPage />} />
-        </Route>
-
-        {/* ── Fuel Logs ───────────────────────────────── */}
-        <Route path="/fuel">
-          <Route index element={<FuelLogsListPage />} />
-          <Route path="new" element={<FuelLogFormPage />} />
-        </Route>
-
-        {/* ── Expenses ────────────────────────────────── */}
-        <Route path="/expenses">
-          <Route index element={<ExpensesListPage />} />
-          <Route path="new" element={<ExpenseFormPage />} />
-        </Route>
-
-        {/* ── Reports ─────────────────────────────────── */}
-        <Route path="/reports" element={<ReportsPage />} />
-
-        {/* ── Settings ────────────────────────────────── */}
-        <Route path="/settings" element={<SettingsPage />} />
       </Route>
 
       {/* ─────────────────────────────────────────────────

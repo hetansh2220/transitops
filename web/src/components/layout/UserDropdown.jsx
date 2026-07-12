@@ -17,30 +17,29 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { ROLE_LABELS } from "@/lib/permissions";
 
-// ── Mock user — replace with AuthContext once wired ───────────────────────
-const MOCK_USER = {
-  name: "Darsh Patel",
-  email: "darsh@transitops.com",
-  role: "Fleet Manager",
-  initials: "DP",
-};
-
-// Derive a readable role label from the enum string
-function formatRole(role) {
-  return role
-    .split("_")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+// "Test Manager" → "TM"
+function initialsOf(name) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
 }
 
 export default function UserDropdown() {
   const navigate = useNavigate();
-  const user = MOCK_USER;
+  const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    // Auth service call goes here
-    navigate("/login");
+  if (!user) return null;
+
+  const handleLogout = async () => {
+    // Clears the httpOnly refresh cookie server-side, then drops the session.
+    await logout();
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -59,7 +58,7 @@ export default function UserDropdown() {
         {/* Avatar */}
         <Avatar size="sm">
           <AvatarFallback className="bg-foreground text-background text-[10px] font-bold">
-            {user.initials}
+            {initialsOf(user.name)}
           </AvatarFallback>
         </Avatar>
 
@@ -92,7 +91,7 @@ export default function UserDropdown() {
             </span>
             <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
               <Shield size={10} aria-hidden="true" />
-              {formatRole(user.role)}
+              {ROLE_LABELS[user.role] ?? user.role}
             </span>
           </div>
         </DropdownMenuLabel>
