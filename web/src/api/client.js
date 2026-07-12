@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const apiBaseUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, "") ?? "";
+
 /**
  * The access token lives in memory only — never localStorage.
  * The backend keeps the refresh token in an httpOnly cookie, so a page
@@ -9,7 +11,7 @@ import axios from "axios";
 let accessToken = null;
 
 /** Called when refresh fails — AuthContext registers a handler to log the user out. */
-let onAuthFailure = () => {};
+let onAuthFailure = () => { };
 
 export const setAccessToken = (token) => {
   accessToken = token;
@@ -22,7 +24,7 @@ export const setAuthFailureHandler = (handler) => {
 };
 
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: apiBaseUrl,
   // Required: lets the refreshToken cookie ride along on /auth/refresh.
   withCredentials: true,
 });
@@ -37,7 +39,7 @@ client.interceptors.request.use((config) => {
 /** A bare axios call, so refreshing can't recurse through the interceptors below. */
 export const requestRefresh = () =>
   axios.post(
-    `${import.meta.env.VITE_API_URL}/auth/refresh`,
+    `${apiBaseUrl}/auth/refresh`,
     {},
     { withCredentials: true },
   );
