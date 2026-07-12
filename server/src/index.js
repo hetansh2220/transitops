@@ -5,6 +5,8 @@ import authRouter from './routes/authRoutes.js';
 import roleRouter from './routes/roleRoutes.js';
 import vehicleRouter from './routes/vehicleRoutes.js';
 import driverRouter from './routes/driverRoutes.js';
+import tripRouter from './routes/tripRoutes.js';
+import fuelLogRouter from './routes/fuelLogRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,6 +22,8 @@ app.use('/api/auth', authRouter);
 app.use('/api/vehicles', vehicleRouter);
 app.use('/api', roleRouter);
 app.use('/api/drivers', driverRouter);
+app.use('/api/trips', tripRouter);
+app.use('/api/fuel-logs', fuelLogRouter);
 
 app.get('/', (req, res) => {
     res.send('Server is running');
