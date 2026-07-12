@@ -19,6 +19,7 @@ app.use(cors({
     origin: true,
     credentials: true,
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -49,6 +50,10 @@ app.get('/', (req, res) => {
   `)
 })
 
+// Health check
+app.get('/healthz', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() })
+})
 
 // app.listen(port, () => {
 //     console.log(`Express server running on port ${port}`);
