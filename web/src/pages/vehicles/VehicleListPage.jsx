@@ -106,9 +106,9 @@ const VehicleListPage = () => {
           { label: "Available", value: counts.available },
           { label: "In shop", value: counts.inShop },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-border p-4">
+          <div key={stat.label} className="rounded-lg border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">{stat.label}</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums">{stat.value}</p>
+            <p className="mt-1 text-2xl font-semibold font-numeric tabular-nums">{stat.value}</p>
           </div>
         ))}
       </section>

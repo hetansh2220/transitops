@@ -47,10 +47,10 @@ const MaintenanceTable = ({ logs, canWrite, onSetStatus, onDelete }) => (
               )}
             </TableCell>
             <TableCell>{log.serviceType}</TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="text-right font-numeric tabular-nums">
               {currency(log.cost)}
             </TableCell>
-            <TableCell className="text-muted-foreground tabular-nums">
+            <TableCell className="text-muted-foreground font-numeric tabular-nums">
               {log.date}
             </TableCell>
             <TableCell>

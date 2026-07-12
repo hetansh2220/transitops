@@ -75,7 +75,7 @@ const DriverDetailsPage = () => {
       )}
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
-        <section className="rounded-lg border border-border p-6">
+        <section className="rounded-lg border border-border bg-card p-6">
           <p className="text-xs text-muted-foreground">Driver profile</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">{driver.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -95,7 +95,7 @@ const DriverDetailsPage = () => {
           </dl>
         </section>
 
-        <aside className="rounded-lg border border-border p-5">
+        <aside className="rounded-lg border border-border bg-card p-5">
           <p className="text-xs text-muted-foreground">Trip history</p>
 
           {trips.length === 0 ? (

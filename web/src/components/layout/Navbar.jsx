@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Search, ChevronRight, Moon, Sun } from "lucide-react";
+import { ChevronRight, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { NAV_GROUPS } from "@/constants/sidebar";
 import NotificationBell from "@/components/layout/NotificationBell";
 import UserDropdown from "@/components/layout/UserDropdown";
 import MobileSidebar from "@/components/layout/MobileSidebar";
-import CommandPalette from "@/components/layout/CommandPalette";
 
 // ── Route metadata lookup ─────────────────────────────────────────────────
 // Flatten all nav items into a path → label map for breadcrumb resolution.
@@ -60,42 +59,6 @@ function useBreadcrumbs() {
   // Deduplicate consecutive identical labels
   return crumbs.filter(
     (crumb, i, arr) => i === 0 || crumb.label !== arr[i - 1].label
-  );
-}
-
-// ── Search trigger ─────────────────────────────────────────────────────────
-// A button, not a text input: typing happens inside the ⌘K palette. A real
-// field here would be a decoy that swallows keystrokes and does nothing.
-function GlobalSearch({ onOpen }) {
-  return (
-    <button
-      id="global-search"
-      type="button"
-      onClick={onOpen}
-      aria-label="Search"
-      aria-keyshortcuts="Meta+K Control+K"
-      className={cn(
-        "relative flex-1 max-w-xs hidden sm:flex items-center",
-        "h-8 rounded-md border border-input bg-transparent pl-8 pr-3",
-        "text-sm text-muted-foreground transition-colors duration-150",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-1",
-        "hover:border-foreground/30 hover:text-foreground"
-      )}
-    >
-      <Search
-        size={14}
-        aria-hidden="true"
-        className="absolute left-2.5 pointer-events-none"
-      />
-      <span>Search…</span>
-
-      <kbd
-        aria-hidden="true"
-        className="pointer-events-none absolute right-2 hidden h-5 select-none items-center gap-1 rounded border border-border px-1.5 font-mono text-[10px] sm:flex"
-      >
-        ⌘K
-      </kbd>
-    </button>
   );
 }
 
@@ -185,20 +148,6 @@ function MobilePageTitle({ crumbs }) {
 // ── Navbar ─────────────────────────────────────────────────────────────────
 export default function Navbar({ mobileOpen, onMobileOpenChange }) {
   const crumbs = useBreadcrumbs();
-  const [paletteOpen, setPaletteOpen] = useState(false);
-
-  // ⌘K / Ctrl-K opens the palette from anywhere in the app.
-  useEffect(() => {
-    const onKeyDown = (event) => {
-      if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault();
-        setPaletteOpen((open) => !open);
-      }
-    };
-
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, []);
 
   return (
     <header
@@ -221,14 +170,6 @@ export default function Navbar({ mobileOpen, onMobileOpenChange }) {
 
       {/* ── Right section ────────────────────────────── */}
       <div className="flex shrink-0 items-center gap-2">
-        <GlobalSearch onOpen={() => setPaletteOpen(true)} />
-
-        {/* Divider */}
-        <div
-          aria-hidden="true"
-          className="hidden sm:block h-5 w-px bg-border"
-        />
-
         <ThemeToggle />
         <NotificationBell />
 
@@ -237,8 +178,6 @@ export default function Navbar({ mobileOpen, onMobileOpenChange }) {
 
         <UserDropdown />
       </div>
-
-      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
     </header>
   );
 }

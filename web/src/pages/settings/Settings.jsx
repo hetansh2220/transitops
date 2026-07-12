@@ -55,7 +55,7 @@ const SettingsPage = () => {
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.4fr]">
         <div className="flex flex-col gap-6">
           {/* ── Profile ─────────────────────────────── */}
-          <section className="rounded-lg border border-border p-5">
+          <section className="rounded-lg border border-border bg-card p-5">
             <h2 className="text-sm font-semibold">Profile</h2>
 
             <div className="mt-4 flex items-center gap-3">
@@ -77,7 +77,7 @@ const SettingsPage = () => {
           </section>
 
           {/* ── Appearance ──────────────────────────── */}
-          <section className="rounded-lg border border-border p-5">
+          <section className="rounded-lg border border-border bg-card p-5">
             <h2 className="text-sm font-semibold">Appearance</h2>
             <p className="mt-1 text-xs text-muted-foreground">
               Choose how TransitOps looks on this device.
@@ -106,7 +106,7 @@ const SettingsPage = () => {
             <h2 className="text-sm font-semibold">Role-based access</h2>
             <p className="mt-1 text-xs text-muted-foreground">
               Generated from the same rules the API enforces.{" "}
-              <span className="text-emerald-600 dark:text-emerald-400">✓</span> read and
+              <span className="text-success">✓</span> read and
               write · <span className="font-medium">view</span> read-only ·{" "}
               <span className="font-medium">—</span> hidden
             </p>
@@ -148,7 +148,7 @@ const SettingsPage = () => {
                               <Check
                                 size={15}
                                 aria-hidden="true"
-                                className="mx-auto text-emerald-600 dark:text-emerald-400"
+                                className="mx-auto text-success"
                               />
                               <span className="sr-only">Read and write</span>
                             </>

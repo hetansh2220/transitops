@@ -71,7 +71,7 @@ const MaintenanceDialog = ({ open, onOpenChange, vehicles, onSubmit, isPending }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="w-[calc(100%-2rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-6">
         <DialogHeader>
           <DialogTitle>Log service record</DialogTitle>
           <DialogDescription>

@@ -3,7 +3,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -44,9 +43,9 @@ const chartTooltip = {
   contentStyle: {
     background: "var(--popover)",
     border: "1px solid var(--border)",
-    borderRadius: 8,
+    borderRadius: "var(--radius)",
     fontSize: 12,
-    color: "var(--popover-foreground)",
+    color: "var(--foreground)",
   },
 };
 
@@ -85,13 +84,18 @@ const ReportsPage = () => {
     [rows],
   );
 
+  // Ranked, so the bar colour reads as severity rather than decoration.
   const costliest = useMemo(
     () =>
       [...rows]
         .filter((row) => row.totalCost > 0)
         .sort((a, b) => b.totalCost - a.totalCost)
         .slice(0, 5)
-        .map((row) => ({ name: row.name, cost: row.totalCost })),
+        .map((row, index) => ({
+          name: row.name,
+          cost: row.totalCost,
+          fill: index === 0 ? "var(--danger)" : index === 1 ? "var(--warning)" : "var(--muted-foreground)",
+        })),
     [rows],
   );
 
@@ -192,19 +196,19 @@ const ReportsPage = () => {
               <Skeleton key={index} className="h-[88px] w-full" />
             ))
           : kpis.map(({ label, value, icon: Icon }) => (
-              <div key={label} className="rounded-lg border border-border p-4">
+              <div key={label} className="rounded-lg border border-border bg-card p-4">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Icon size={14} aria-hidden="true" />
                   <p className="text-xs">{label}</p>
                 </div>
-                <p className="mt-2 text-2xl font-semibold tabular-nums">{value}</p>
+                <p className="mt-2 text-2xl font-semibold font-numeric tabular-nums">{value}</p>
               </div>
             ))}
       </section>
 
       {/* ── Charts ──────────────────────────────────── */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border p-5">
+        <div className="rounded-lg border border-border bg-card p-5">
           <h2 className="text-sm font-semibold">Revenue by vehicle</h2>
           <div className="mt-5 h-64">
             {isLoading ? (
@@ -221,24 +225,27 @@ const ReportsPage = () => {
                     dataKey="name"
                     tickLine={false}
                     axisLine={false}
-                    tick={{ fontSize: 11, fill: "currentColor" }}
-                    className="text-muted-foreground"
+                    tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
                   />
                   <YAxis
                     tickLine={false}
                     axisLine={false}
-                    tick={{ fontSize: 11, fill: "currentColor" }}
-                    className="text-muted-foreground"
+                    tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
                   />
-                  <Tooltip cursor={{ fill: "rgba(127,127,127,0.12)" }} {...chartTooltip} />
-                  <Bar dataKey="revenue" name="Revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Tooltip cursor={{ fill: "var(--accent)" }} {...chartTooltip} />
+                  <Bar
+                    dataKey="revenue"
+                    name="Revenue"
+                    fill="var(--chart-1)"
+                    radius={[4, 4, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             )}
           </div>
         </div>
 
-        <div className="rounded-lg border border-border p-5">
+        <div className="rounded-lg border border-border bg-card p-5">
           <h2 className="text-sm font-semibold">Costliest vehicles</h2>
           <p className="mt-1 text-xs text-muted-foreground">Fuel + maintenance + expenses</p>
           <div className="mt-4 h-64">
@@ -258,18 +265,15 @@ const ReportsPage = () => {
                     width={80}
                     tickLine={false}
                     axisLine={false}
-                    tick={{ fontSize: 11, fill: "currentColor" }}
-                    className="text-muted-foreground"
+                    tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
                   />
-                  <Tooltip cursor={{ fill: "rgba(127,127,127,0.12)" }} {...chartTooltip} />
-                  <Bar dataKey="cost" name="Total cost" radius={[0, 4, 4, 0]} barSize={18}>
-                    {costliest.map((row, index) => (
-                      <Cell
-                        key={row.name}
-                        fill={["#fb7185", "#f59e0b", "#60a5fa", "#a78bfa", "#34d399"][index]}
-                      />
-                    ))}
-                  </Bar>
+                  <Tooltip cursor={{ fill: "var(--accent)" }} {...chartTooltip} />
+                  <Bar
+                    dataKey="cost"
+                    name="Total cost"
+                    radius={[0, 4, 4, 0]}
+                    barSize={18}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -318,32 +322,32 @@ const ReportsPage = () => {
                         {row.name}
                       </span>
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell className="text-right font-numeric tabular-nums">
                       {row.completedTrips}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell className="text-right font-numeric tabular-nums">
                       {num(row.distance)}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell className="text-right font-numeric tabular-nums">
                       {num(row.fuelLiters)}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell className="text-right font-numeric tabular-nums">
                       {row.fuelEfficiency === null ? "—" : row.fuelEfficiency}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell className="text-right font-numeric tabular-nums">
                       {num(row.fuelCost)}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell className="text-right font-numeric tabular-nums">
                       {num(row.maintenanceCost)}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell className="text-right font-numeric tabular-nums">
                       {num(row.revenue)}
                     </TableCell>
                     <TableCell
                       className={
                         row.roi !== null && row.roi < 0
-                          ? "text-right tabular-nums text-destructive"
-                          : "text-right tabular-nums"
+                          ? "text-right font-numeric tabular-nums text-destructive"
+                          : "text-right font-numeric tabular-nums"
                       }
                     >
                       {percent(row.roi)}

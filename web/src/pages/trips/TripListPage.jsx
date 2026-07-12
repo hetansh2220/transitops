@@ -5,9 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import TripFilters, { ALL } from "@/components/trip/TripFilters";
 import TripTable from "@/components/trip/TripTable";
+import TripDialog from "@/components/trip/TripDialog";
 import CompleteTripDialog from "@/components/trip/CompleteTripDialog";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 import {
   useTrips,
+  useCreateTrip,
+  useUpdateTrip,
   useDispatchTrip,
   useCancelTrip,
   useCompleteTrip,
@@ -23,12 +27,18 @@ const TripListPage = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState(ALL);
 
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingTrip, setEditingTrip] = useState(null);
   const [completingTrip, setCompletingTrip] = useState(null);
+  const [cancellingTrip, setCancellingTrip] = useState(null);
+  const [deletingTrip, setDeletingTrip] = useState(null);
 
   const { data: trips = [], isLoading, isError, error } = useTrips(
     status !== ALL ? { status } : {}
   );
 
+  const createTrip = useCreateTrip();
+  const updateTrip = useUpdateTrip();
   const dispatchTrip = useDispatchTrip();
   const cancelTrip = useCancelTrip();
   const completeTrip = useCompleteTrip();
@@ -61,17 +71,27 @@ const TripListPage = () => {
     dispatchTrip.mutate(trip.id);
   };
 
-  const handleCancel = (trip) => {
-    if (window.confirm("Are you sure you want to cancel this trip?")) {
-      cancelTrip.mutate(trip.id);
-    }
+  const openAdd = () => {
+    setEditingTrip(null);
+    setDialogOpen(true);
   };
 
-  const handleDelete = (trip) => {
-    if (window.confirm(`Are you sure you want to delete trip #${trip.id}?`)) {
-      deleteTrip.mutate(trip.id);
-    }
+  const openEdit = (trip) => {
+    setEditingTrip(trip);
+    setDialogOpen(true);
   };
+
+  const handleSubmit = (payload) => {
+    const mutation = editingTrip
+      ? updateTrip.mutateAsync({ id: editingTrip.id, ...payload })
+      : createTrip.mutateAsync(payload);
+
+    mutation.then(() => setDialogOpen(false)).catch(() => {
+      /* the hook toasts the error; keep the dialog open so input isn't lost */
+    });
+  };
+
+  const isSaving = createTrip.isPending || updateTrip.isPending;
 
   const handleCompleteSubmit = (payload) => {
     if (!completingTrip) return;
@@ -92,9 +112,9 @@ const TripListPage = () => {
         </div>
 
         {canWrite && (
-          <Button onClick={() => navigate("/trips/new")} className="w-fit">
+          <Button onClick={openAdd} className="w-fit">
             <Plus size={16} aria-hidden="true" />
-            New Trip
+            New trip
           </Button>
         )}
       </header>
@@ -105,9 +125,9 @@ const TripListPage = () => {
           { label: "Currently Dispatched", value: counts.dispatched },
           { label: "Completed (Filtered)", value: counts.completed },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-border p-4">
+          <div key={stat.label} className="rounded-lg border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">{stat.label}</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums">{stat.value}</p>
+            <p className="mt-1 text-2xl font-semibold font-numeric tabular-nums">{stat.value}</p>
           </div>
         ))}
       </section>
@@ -158,14 +178,22 @@ const TripListPage = () => {
             trips={filteredTrips}
             canWrite={canWrite}
             onView={(trip) => navigate(`/trips/${trip.id}`)}
-            onEdit={(trip) => navigate(`/trips/${trip.id}/edit`)}
-            onDelete={handleDelete}
+            onEdit={openEdit}
+            onDelete={setDeletingTrip}
             onDispatch={handleDispatch}
             onComplete={setCompletingTrip}
-            onCancel={handleCancel}
+            onCancel={setCancellingTrip}
           />
         )}
       </section>
+
+      <TripDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        trip={editingTrip}
+        onSubmit={handleSubmit}
+        isPending={isSaving}
+      />
 
       <CompleteTripDialog
         open={Boolean(completingTrip)}
@@ -173,6 +201,39 @@ const TripListPage = () => {
         trip={completingTrip}
         onSubmit={handleCompleteSubmit}
         isPending={completeTrip.isPending}
+      />
+
+      <ConfirmDialog
+        open={Boolean(cancellingTrip)}
+        onOpenChange={() => setCancellingTrip(null)}
+        title="Cancel this trip?"
+        description="If the trip is dispatched, its vehicle and driver are released back to Available."
+        confirmLabel="Cancel trip"
+        cancelLabel="Keep it"
+        destructive
+        isPending={cancelTrip.isPending}
+        onConfirm={() =>
+          cancelTrip
+            .mutateAsync(cancellingTrip.id)
+            .then(() => setCancellingTrip(null))
+            .catch(() => setCancellingTrip(null))
+        }
+      />
+
+      <ConfirmDialog
+        open={Boolean(deletingTrip)}
+        onOpenChange={() => setDeletingTrip(null)}
+        title="Delete this trip?"
+        description="This cannot be undone, and it removes the trip from revenue and distance reports."
+        confirmLabel="Delete"
+        destructive
+        isPending={deleteTrip.isPending}
+        onConfirm={() =>
+          deleteTrip
+            .mutateAsync(deletingTrip.id)
+            .then(() => setDeletingTrip(null))
+            .catch(() => setDeletingTrip(null))
+        }
       />
     </div>
   );

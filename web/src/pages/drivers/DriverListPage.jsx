@@ -122,13 +122,13 @@ const DriverListPage = () => {
           { label: "Available", value: counts.available },
           { label: "Expired licences", value: counts.expired, alert: true },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-border p-4">
+          <div key={stat.label} className="rounded-lg border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">{stat.label}</p>
             <p
               className={
                 stat.alert && stat.value > 0
-                  ? "mt-1 text-2xl font-semibold tabular-nums text-destructive"
-                  : "mt-1 text-2xl font-semibold tabular-nums"
+                  ? "mt-1 text-2xl font-semibold font-numeric tabular-nums text-destructive"
+                  : "mt-1 text-2xl font-semibold font-numeric tabular-nums"
               }
             >
               {stat.value}

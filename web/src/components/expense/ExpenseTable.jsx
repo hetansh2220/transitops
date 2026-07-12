@@ -69,10 +69,10 @@ const ExpenseTable = ({ expenses, canWrite, onEdit, onDelete }) => (
           <TableCell className="max-w-[200px] truncate" title={exp.description}>
             {exp.description || "—"}
           </TableCell>
-          <TableCell className="text-right font-medium tabular-nums">
+          <TableCell className="text-right font-medium font-numeric tabular-nums">
             ${number(exp.amount)}
           </TableCell>
-          <TableCell className="tabular-nums">
+          <TableCell className="font-numeric tabular-nums">
             {exp.date ? new Date(exp.date).toLocaleDateString() : "—"}
           </TableCell>
           <TableCell>

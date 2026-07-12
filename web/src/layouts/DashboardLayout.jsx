@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import Sidebar from "@/components/layout/Sidebar";
 import Navbar from "@/components/layout/Navbar";
+import DemoBanner from "@/components/layout/DemoBanner";
 
 /**
  * DashboardLayout
@@ -76,6 +77,9 @@ const DashboardLayout = () => {
             "bg-background/95 backdrop-blur-sm"
           )}
         >
+          {/* Demo-only: seeded logins, so a reviewer can switch roles instantly. */}
+          <DemoBanner />
+
           <Navbar
             mobileOpen={mobileOpen}
             onMobileOpenChange={handleMobileOpen}

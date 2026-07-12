@@ -70,10 +70,10 @@ const TripTable = ({
             <TableCell>
               <span className="font-medium">{trip.driverName}</span>
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="text-right font-numeric tabular-nums">
               {number(trip.cargoWeight)} kg
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="text-right font-numeric tabular-nums">
               {trip.revenue ? `$${number(trip.revenue)}` : "—"}
             </TableCell>
             <TableCell>

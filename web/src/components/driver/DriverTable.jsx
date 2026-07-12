@@ -58,12 +58,12 @@ const DriverTable = ({
         return (
           <TableRow key={driver.id}>
             <TableCell className="font-medium">{driver.name}</TableCell>
-            <TableCell className="tabular-nums">{driver.licenseNumber}</TableCell>
+            <TableCell className="font-numeric tabular-nums">{driver.licenseNumber}</TableCell>
             <TableCell>{driver.licenseCategory}</TableCell>
             <TableCell>
               <span
                 className={cn(
-                  "inline-flex items-center gap-1 tabular-nums",
+                  "inline-flex items-center gap-1 font-numeric tabular-nums",
                   expired && "font-medium text-destructive",
                 )}
               >
@@ -75,10 +75,10 @@ const DriverTable = ({
             <TableCell className="text-muted-foreground">
               {driver.contactNumber ?? "—"}
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="text-right font-numeric tabular-nums">
               {tripCounts[driver.id] ?? 0}
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="text-right font-numeric tabular-nums">
               {Number(driver.safetyScore).toFixed(0)}
             </TableCell>
             <TableCell>

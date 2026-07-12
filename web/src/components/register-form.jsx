@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
+import DemoAccountsCard from "@/components/auth/DemoAccountsCard";
 import { ROLE_LABELS } from "@/lib/permissions";
 
 const schema = z.object({
@@ -144,6 +145,11 @@ export function RegisterForm({ className, ...props }) {
             </Link>
           </FieldDescription>
         </Field>
+
+        {/* No form to fill here — clicking an account sends you to login with it. */}
+        <DemoAccountsCard
+          onPick={(email) => navigate("/login", { state: { email } })}
+        />
       </FieldGroup>
     </form>
   );

@@ -69,7 +69,7 @@ const CompleteTripDialog = ({ open, onOpenChange, trip, onSubmit, isPending }) =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="w-[calc(100%-2rem)] sm:max-w-xl max-h-[90vh] overflow-y-auto p-6">
         <DialogHeader>
           <DialogTitle>Complete Trip</DialogTitle>
           <DialogDescription>

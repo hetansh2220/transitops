@@ -77,19 +77,19 @@ const MaintenanceListPage = () => {
       </header>
 
       <section className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-border p-4">
+        <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Open records</p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-amber-600 dark:text-amber-400">
+          <p className="mt-1 text-2xl font-semibold font-numeric tabular-nums text-warning">
             {openCount}
           </p>
         </div>
-        <div className="rounded-lg border border-border p-4">
+        <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Total records</p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums">{data?.count ?? 0}</p>
+          <p className="mt-1 text-2xl font-semibold font-numeric tabular-nums">{data?.count ?? 0}</p>
         </div>
-        <div className="rounded-lg border border-border p-4">
+        <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Total cost</p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums">
+          <p className="mt-1 text-2xl font-semibold font-numeric tabular-nums">
             {currency(data?.totalCost)}
           </p>
         </div>
@@ -102,20 +102,20 @@ const MaintenanceListPage = () => {
           Status rules
         </span>
         <span className="flex items-center gap-2">
-          <span className="font-medium text-emerald-600 dark:text-emerald-400">
+          <span className="font-medium text-success">
             Available
           </span>
           <ArrowRight size={13} aria-hidden="true" className="text-muted-foreground" />
           <span className="text-xs text-muted-foreground">open a record</span>
           <ArrowRight size={13} aria-hidden="true" className="text-muted-foreground" />
-          <span className="font-medium text-amber-600 dark:text-amber-400">In shop</span>
+          <span className="font-medium text-warning">In shop</span>
         </span>
         <span className="flex items-center gap-2">
-          <span className="font-medium text-amber-600 dark:text-amber-400">In shop</span>
+          <span className="font-medium text-warning">In shop</span>
           <ArrowRight size={13} aria-hidden="true" className="text-muted-foreground" />
           <span className="text-xs text-muted-foreground">close it</span>
           <ArrowRight size={13} aria-hidden="true" className="text-muted-foreground" />
-          <span className="font-medium text-emerald-600 dark:text-emerald-400">
+          <span className="font-medium text-success">
             Available
           </span>
         </span>

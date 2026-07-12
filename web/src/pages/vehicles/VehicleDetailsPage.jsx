@@ -67,7 +67,7 @@ const VehicleDetailsPage = () => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
-        <section className="rounded-lg border border-border p-6">
+        <section className="rounded-lg border border-border bg-card p-6">
           <p className="text-xs text-muted-foreground">Fleet asset</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">
             {vehicle.registrationNumber}
@@ -96,7 +96,7 @@ const VehicleDetailsPage = () => {
           </dl>
         </section>
 
-        <aside className="rounded-lg border border-border p-5">
+        <aside className="rounded-lg border border-border bg-card p-5">
           <p className="text-xs text-muted-foreground">Maintenance history</p>
 
           {logs.length === 0 ? (

@@ -9,7 +9,7 @@ const Alerts = () => {
   const { alerts, isLoading } = useAlerts();
 
   return (
-    <div className="rounded-lg border border-border p-5">
+    <div className="rounded-lg border border-border bg-card p-5">
       <h2 className="text-sm font-semibold">Needs attention</h2>
 
       {isLoading ? (
@@ -20,7 +20,7 @@ const Alerts = () => {
         </div>
       ) : alerts.length === 0 ? (
         <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-          <CircleCheck size={15} aria-hidden="true" className="text-emerald-600" />
+          <CircleCheck size={15} aria-hidden="true" className="text-success" />
           Nothing needs attention.
         </p>
       ) : (
@@ -38,7 +38,7 @@ const Alerts = () => {
                     "mt-0.5 shrink-0",
                     alert.severity === "critical"
                       ? "text-destructive"
-                      : "text-amber-500",
+                      : "text-warning",
                   )}
                 />
                 <div className="min-w-0">

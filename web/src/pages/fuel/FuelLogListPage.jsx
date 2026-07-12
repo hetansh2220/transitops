@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { Plus, Fuel, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -11,7 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import FuelLogTable from "@/components/fuel/FuelLogTable";
-import { useFuelLogs, useDeleteFuelLog } from "@/hooks/useFuelLogs";
+import FuelDialog from "@/components/fuel/FuelDialog";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
+import {
+  useFuelLogs,
+  useDeleteFuelLog,
+  useCreateFuelLog,
+  useUpdateFuelLog,
+} from "@/hooks/useFuelLogs";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useAuth } from "@/context/AuthContext";
 
@@ -19,13 +25,17 @@ const ALL = "all";
 const number = (value) => Number(value ?? 0).toLocaleString();
 
 const FuelLogListPage = () => {
-  const navigate = useNavigate();
   const { can } = useAuth();
   const canWrite = can("fuelLogs");
 
   const [selectedVehicle, setSelectedVehicle] = useState(ALL);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingLog, setEditingLog] = useState(null);
+  const [deletingLog, setDeletingLog] = useState(null);
 
   const { data: vehicles = [] } = useVehicles();
+  const createLog = useCreateFuelLog();
+  const updateLog = useUpdateFuelLog();
   const deleteLog = useDeleteFuelLog();
 
   const queryParams = useMemo(() => {
@@ -42,11 +52,27 @@ const FuelLogListPage = () => {
     return { totalLiters, totalCost, avgPrice };
   }, [logs]);
 
-  const handleDelete = (log) => {
-    if (window.confirm(`Are you sure you want to delete fuel log #${log.id}?`)) {
-      deleteLog.mutate(log.id);
-    }
+  const openAdd = () => {
+    setEditingLog(null);
+    setDialogOpen(true);
   };
+
+  const openEdit = (log) => {
+    setEditingLog(log);
+    setDialogOpen(true);
+  };
+
+  const handleSubmit = (payload) => {
+    const mutation = editingLog
+      ? updateLog.mutateAsync({ id: editingLog.id, ...payload })
+      : createLog.mutateAsync(payload);
+
+    mutation.then(() => setDialogOpen(false)).catch(() => {
+      /* the hook toasts the error; keep the dialog open so input isn't lost */
+    });
+  };
+
+  const isSaving = createLog.isPending || updateLog.isPending;
 
   return (
     <div className="flex flex-col gap-6">
@@ -59,9 +85,9 @@ const FuelLogListPage = () => {
         </div>
 
         {canWrite && (
-          <Button onClick={() => navigate("/fuel/new")} className="w-fit">
+          <Button onClick={openAdd} className="w-fit">
             <Plus size={16} aria-hidden="true" />
-            Add Fuel Log
+            Log fuel
           </Button>
         )}
       </header>
@@ -81,9 +107,9 @@ const FuelLogListPage = () => {
             value: `$${metrics.avgPrice.toFixed(2)}/L`,
           },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-border p-4">
+          <div key={stat.label} className="rounded-lg border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">{stat.label}</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums">{stat.value}</p>
+            <p className="mt-1 text-2xl font-semibold font-numeric tabular-nums">{stat.value}</p>
           </div>
         ))}
       </section>
@@ -152,11 +178,35 @@ const FuelLogListPage = () => {
           <FuelLogTable
             logs={logs}
             canWrite={canWrite}
-            onEdit={(log) => navigate(`/fuel/${log.id}/edit`)}
-            onDelete={handleDelete}
+            onEdit={openEdit}
+            onDelete={setDeletingLog}
           />
         )}
       </section>
+
+      <FuelDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        log={editingLog}
+        onSubmit={handleSubmit}
+        isPending={isSaving}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deletingLog)}
+        onOpenChange={() => setDeletingLog(null)}
+        title="Delete this fuel log?"
+        description="This cannot be undone. It will also change the fuel-efficiency and cost figures in reports."
+        confirmLabel="Delete"
+        destructive
+        isPending={deleteLog.isPending}
+        onConfirm={() =>
+          deleteLog
+            .mutateAsync(deletingLog.id)
+            .then(() => setDeletingLog(null))
+            .catch(() => setDeletingLog(null))
+        }
+      />
     </div>
   );
 };

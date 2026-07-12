@@ -1,16 +1,20 @@
 import client from "./client";
 
-export const listFuelLogs = (params) =>
-  client.get("/fuel", { params }).then((res) => res.data);
+// The router is mounted at /api/fuel-logs on the server — the UI route is /fuel,
+// but the endpoint is not.
+const BASE = "/fuel-logs";
 
-export const getFuelLog = (id) =>
-  client.get(`/fuel/${id}`).then((res) => res.data);
+/** @param params - optional { vehicleId, tripId } */
+export const listFuelLogs = (params) =>
+  client.get(BASE, { params }).then((res) => res.data);
+
+export const getFuelLog = (id) => client.get(`${BASE}/${id}`).then((res) => res.data);
 
 export const createFuelLog = (payload) =>
-  client.post("/fuel", payload).then((res) => res.data.fuelLog);
+  client.post(BASE, payload).then((res) => res.data.fuelLog);
 
 export const updateFuelLog = (id, payload) =>
-  client.put(`/fuel/${id}`, payload).then((res) => res.data.fuelLog);
+  client.put(`${BASE}/${id}`, payload).then((res) => res.data.fuelLog);
 
 export const deleteFuelLog = (id) =>
-  client.delete(`/fuel/${id}`).then((res) => res.data);
+  client.delete(`${BASE}/${id}`).then((res) => res.data);

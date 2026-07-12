@@ -56,16 +56,16 @@ const FuelLogTable = ({ logs, canWrite, onEdit, onDelete }) => (
                 <span className="text-muted-foreground text-xs">—</span>
               )}
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="text-right font-numeric tabular-nums">
               {number(log.liters)} L
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="text-right font-numeric tabular-nums">
               ${number(log.cost)}
             </TableCell>
-            <TableCell className="text-right tabular-nums text-muted-foreground text-xs">
+            <TableCell className="text-right font-numeric tabular-nums text-muted-foreground text-xs">
               ${pRate.toFixed(2)}/L
             </TableCell>
-            <TableCell className="tabular-nums">
+            <TableCell className="font-numeric tabular-nums">
               {log.date ? new Date(log.date).toLocaleDateString() : "—"}
             </TableCell>
             <TableCell>

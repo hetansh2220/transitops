@@ -49,10 +49,10 @@ const VehicleTable = ({ vehicles, canWrite, onView, onEdit, onChangeStatus }) =>
             </TableCell>
             <TableCell>{vehicle.type}</TableCell>
             <TableCell className="text-muted-foreground">{vehicle.region ?? "—"}</TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="text-right font-numeric tabular-nums">
               {number(vehicle.maxLoadCapacity)}
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="text-right font-numeric tabular-nums">
               {number(vehicle.odometer)}
             </TableCell>
             <TableCell>

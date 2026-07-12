@@ -17,21 +17,16 @@ import VehicleDetailsPage from "@/pages/vehicles/VehicleDetailsPage";
 
 import DriverListPage from "@/pages/drivers/DriverListPage";
 import DriverDetailsPage from "@/pages/drivers/DriverDetailsPage";
-import DriverFormPage from "@/pages/drivers/DriverFormPage";
 
 import TripListPage from "@/pages/trips/TripListPage";
 import TripDetailsPage from "@/pages/trips/TripDetailsPage";
-import TripFormPage from "@/pages/trips/TripFormPage";
 
 import MaintenanceListPage from "@/pages/maintenance/MaintenanceListPage";
 import MaintenanceDetailsPage from "@/pages/maintenance/MaintenanceDetailsPage";
-import MaintenanceFormPage from "@/pages/maintenance/MaintenanceFormPage";
 
 import FuelLogListPage from "@/pages/fuel/FuelLogListPage";
-import FuelLogFormPage from "@/pages/fuel/FuelLogFormPage";
 
 import ExpenseListPage from "@/pages/expenses/ExpenseListPage";
-import ExpenseFormPage from "@/pages/expenses/ExpenseFormPage";
 
 import ReportsPage from "@/pages/reports/Reports";
 
@@ -53,9 +48,10 @@ const AppRoutes = () => {
 
           <Route path="/dashboard" element={<DashboardPage />} />
 
+          {/* Every resource creates and edits through a dialog on its list page,
+              so there are no /new or /:id/edit routes anywhere below. */}
+
           {/* ── Vehicles ────────────────────────────────── */}
-          {/* Create/edit happen in a dialog on the list page, so there are no
-              /new or /:id/edit routes here. */}
           <Route path="/vehicles" element={<RoleRoute allow={VIEW_ROLES.vehicles} />}>
             <Route index element={<VehicleListPage />} />
             <Route path=":id" element={<VehicleDetailsPage />} />
@@ -65,20 +61,12 @@ const AppRoutes = () => {
           <Route path="/drivers" element={<RoleRoute allow={VIEW_ROLES.drivers} />}>
             <Route index element={<DriverListPage />} />
             <Route path=":id" element={<DriverDetailsPage />} />
-            <Route element={<RoleRoute allow={WRITE_ROLES.drivers} />}>
-              <Route path="new" element={<DriverFormPage />} />
-              <Route path=":id/edit" element={<DriverFormPage />} />
-            </Route>
           </Route>
 
           {/* ── Trips ───────────────────────────────────── */}
           <Route path="/trips" element={<RoleRoute allow={VIEW_ROLES.trips} />}>
             <Route index element={<TripListPage />} />
             <Route path=":id" element={<TripDetailsPage />} />
-            <Route element={<RoleRoute allow={WRITE_ROLES.trips} />}>
-              <Route path="new" element={<TripFormPage />} />
-              <Route path=":id/edit" element={<TripFormPage />} />
-            </Route>
           </Route>
 
           {/* ── Maintenance ─────────────────────────────── */}
@@ -88,27 +76,16 @@ const AppRoutes = () => {
           >
             <Route index element={<MaintenanceListPage />} />
             <Route path=":id" element={<MaintenanceDetailsPage />} />
-            <Route element={<RoleRoute allow={WRITE_ROLES.maintenance} />}>
-              <Route path="new" element={<MaintenanceFormPage />} />
-            </Route>
           </Route>
 
           {/* ── Fuel Logs ───────────────────────────────── */}
           <Route path="/fuel" element={<RoleRoute allow={VIEW_ROLES.fuelLogs} />}>
             <Route index element={<FuelLogListPage />} />
-            <Route element={<RoleRoute allow={WRITE_ROLES.fuelLogs} />}>
-              <Route path="new" element={<FuelLogFormPage />} />
-              <Route path=":id/edit" element={<FuelLogFormPage />} />
-            </Route>
           </Route>
 
           {/* ── Expenses ────────────────────────────────── */}
           <Route path="/expenses" element={<RoleRoute allow={VIEW_ROLES.expenses} />}>
             <Route index element={<ExpenseListPage />} />
-            <Route element={<RoleRoute allow={WRITE_ROLES.expenses} />}>
-              <Route path="new" element={<ExpenseFormPage />} />
-              <Route path=":id/edit" element={<ExpenseFormPage />} />
-            </Route>
           </Route>
 
           {/* ── Reports ─────────────────────────────────── */}

@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { Plus, Receipt, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -11,7 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ExpenseTable from "@/components/expense/ExpenseTable";
-import { useExpenses, useDeleteExpense } from "@/hooks/useExpenses";
+import ExpenseDialog from "@/components/expense/ExpenseDialog";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
+import {
+  useExpenses,
+  useDeleteExpense,
+  useCreateExpense,
+  useUpdateExpense,
+} from "@/hooks/useExpenses";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useAuth } from "@/context/AuthContext";
 
@@ -26,14 +32,18 @@ const EXPENSE_TYPES = [
 ];
 
 const ExpenseListPage = () => {
-  const navigate = useNavigate();
   const { can } = useAuth();
   const canWrite = can("expenses");
 
   const [selectedVehicle, setSelectedVehicle] = useState(ALL);
   const [selectedType, setSelectedType] = useState(ALL);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState(null);
+  const [deletingExpense, setDeletingExpense] = useState(null);
 
   const { data: vehicles = [] } = useVehicles();
+  const createExpense = useCreateExpense();
+  const updateExpense = useUpdateExpense();
   const deleteExpense = useDeleteExpense();
 
   const queryParams = useMemo(() => {
@@ -70,11 +80,27 @@ const ExpenseListPage = () => {
     setSelectedType(ALL);
   };
 
-  const handleDelete = (exp) => {
-    if (window.confirm(`Are you sure you want to delete expense #${exp.id}?`)) {
-      deleteExpense.mutate(exp.id);
-    }
+  const openAdd = () => {
+    setEditingExpense(null);
+    setDialogOpen(true);
   };
+
+  const openEdit = (expense) => {
+    setEditingExpense(expense);
+    setDialogOpen(true);
+  };
+
+  const handleSubmit = (payload) => {
+    const mutation = editingExpense
+      ? updateExpense.mutateAsync({ id: editingExpense.id, ...payload })
+      : createExpense.mutateAsync(payload);
+
+    mutation.then(() => setDialogOpen(false)).catch(() => {
+      /* the hook toasts the error; keep the dialog open so input isn't lost */
+    });
+  };
+
+  const isSaving = createExpense.isPending || updateExpense.isPending;
 
   return (
     <div className="flex flex-col gap-6">
@@ -87,9 +113,9 @@ const ExpenseListPage = () => {
         </div>
 
         {canWrite && (
-          <Button onClick={() => navigate("/expenses/new")} className="w-fit">
+          <Button onClick={openAdd} className="w-fit">
             <Plus size={16} aria-hidden="true" />
-            Add Expense
+            Add expense
           </Button>
         )}
       </header>
@@ -113,9 +139,9 @@ const ExpenseListPage = () => {
             value: `$${number(metrics.permit.toFixed(2))}`,
           },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-border p-4">
+          <div key={stat.label} className="rounded-lg border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">{stat.label}</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums">{stat.value}</p>
+            <p className="mt-1 text-2xl font-semibold font-numeric tabular-nums">{stat.value}</p>
           </div>
         ))}
       </section>
@@ -194,11 +220,35 @@ const ExpenseListPage = () => {
           <ExpenseTable
             expenses={expenses}
             canWrite={canWrite}
-            onEdit={(exp) => navigate(`/expenses/${exp.id}/edit`)}
-            onDelete={handleDelete}
+            onEdit={openEdit}
+            onDelete={setDeletingExpense}
           />
         )}
       </section>
+
+      <ExpenseDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        expense={editingExpense}
+        onSubmit={handleSubmit}
+        isPending={isSaving}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deletingExpense)}
+        onOpenChange={() => setDeletingExpense(null)}
+        title="Delete this expense?"
+        description="This cannot be undone. It will also change the operational-cost figures in reports."
+        confirmLabel="Delete"
+        destructive
+        isPending={deleteExpense.isPending}
+        onConfirm={() =>
+          deleteExpense
+            .mutateAsync(deletingExpense.id)
+            .then(() => setDeletingExpense(null))
+            .catch(() => setDeletingExpense(null))
+        }
+      />
     </div>
   );
 };

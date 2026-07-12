@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
+import DemoAccountsCard from "@/components/auth/DemoAccountsCard";
 
 const schema = z.object({
   email: z.email("Enter a valid email"),
@@ -29,8 +30,20 @@ export function LoginForm({ className, ...props }) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(schema) });
+  } = useForm({
+    resolver: zodResolver(schema),
+    // The register page can hand an account across when you pick one there.
+    defaultValues: { email: location.state?.email ?? "", password: "" },
+  });
+
+  // Clicking a demo account fills the form rather than signing in behind your
+  // back — you still see which credentials you're using.
+  const fillDemo = (email, password) => {
+    setValue("email", email, { shouldValidate: true });
+    setValue("password", password, { shouldValidate: true });
+  };
 
   const onSubmit = async (values) => {
     setServerError(null);
@@ -99,6 +112,8 @@ export function LoginForm({ className, ...props }) {
             </Link>
           </FieldDescription>
         </Field>
+
+        <DemoAccountsCard onPick={fillDemo} />
       </FieldGroup>
     </form>
   );

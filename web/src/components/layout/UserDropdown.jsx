@@ -1,12 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  User,
-  Settings,
-  LogOut,
-  ChevronDown,
-  Shield,
-} from "lucide-react";
+import { Settings, LogOut, ChevronDown, Shield } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -105,17 +99,7 @@ export default function UserDropdown() {
           <div className="-mx-1 my-1 h-px bg-border" />
 
           <div className="flex flex-col gap-0.5">
-            <button
-              id="menu-profile"
-              onClick={() => {
-                setIsOpen(false);
-                navigate("/settings");
-              }}
-              className="w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors duration-150"
-            >
-              <User size={14} aria-hidden="true" />
-              Profile
-            </button>
+            {/* Profile removed — it pointed at /settings, same as Settings below. */}
             <button
               id="menu-settings"
               onClick={() => {
@@ -137,9 +121,9 @@ export default function UserDropdown() {
               setIsOpen(false);
               handleLogout();
             }}
-            className="w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left hover:bg-destructive/10 hover:text-destructive text-destructive cursor-pointer transition-colors duration-150"
+            className="w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left   cursor-pointer transition-colors duration-150"
           >
-            <LogOut size={14} aria-hidden="true" />
+            <LogOut size={14} />
             Log out
           </button>
         </div>
