@@ -37,6 +37,10 @@ app.get('/', (req, res) => {
     res.send('Server is running');
 });
 
-app.listen(port, () => {
-    console.log(`Express server running on port ${port}`);
-});
+if (process.env.VERCEL !== '1') {
+    app.listen(port, () => {
+        console.log(`Express server running on port ${port}`);
+    });
+}
+
+export default app;
