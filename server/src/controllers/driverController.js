@@ -1,0 +1,107 @@
+import db from '../config/db.js';
+import { drivers } from '../db/schema.js';
+import { eq } from 'drizzle-orm';
+
+export const getDrivers = async (req, res) => {
+    try {
+        const allDrivers = await db.select().from(drivers);
+        res.json(allDrivers);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getDriverById = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const [driver] = await db.select().from(drivers).where(eq(drivers.id, id));
+
+        if (!driver) {
+            return res.status(404).json({ error: 'Driver not found' });
+        }
+
+        res.json(driver);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const createDriver = async (req, res) => {
+    try {
+        const { userId, name, licenseNumber, licenseCategory, licenseExpiryDate, contactNumber, safetyScore, status } = req.body;
+
+        if (!name || !licenseNumber || !licenseCategory || !licenseExpiryDate) {
+            return res.status(400).json({ error: 'Name, license number, category, and expiry date are required' });
+        }
+
+        const existingDriver = await db.select().from(drivers).where(eq(drivers.licenseNumber, licenseNumber));
+        if (existingDriver.length > 0) {
+            return res.status(400).json({ error: 'License number already registered' });
+        }
+
+        const [newDriver] = await db.insert(drivers).values({
+            userId: userId || null,
+            name,
+            licenseNumber,
+            licenseCategory,
+            licenseExpiryDate,
+            contactNumber: contactNumber || null,
+            safetyScore: safetyScore || '100.00',
+            status: status || 'available',
+        }).returning();
+
+        res.status(201).json(newDriver);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const updateDriver = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { userId, name, licenseNumber, licenseCategory, licenseExpiryDate, contactNumber, safetyScore, status } = req.body;
+
+        const [driver] = await db.select().from(drivers).where(eq(drivers.id, id));
+        if (!driver) {
+            return res.status(404).json({ error: 'Driver not found' });
+        }
+
+        if (licenseNumber && licenseNumber !== driver.licenseNumber) {
+            const existingDriver = await db.select().from(drivers).where(eq(drivers.licenseNumber, licenseNumber));
+            if (existingDriver.length > 0) {
+                return res.status(400).json({ error: 'License number already registered' });
+            }
+        }
+
+        const [updatedDriver] = await db.update(drivers).set({
+            userId: userId !== undefined ? userId : driver.userId,
+            name: name !== undefined ? name : driver.name,
+            licenseNumber: licenseNumber !== undefined ? licenseNumber : driver.licenseNumber,
+            licenseCategory: licenseCategory !== undefined ? licenseCategory : driver.licenseCategory,
+            licenseExpiryDate: licenseExpiryDate !== undefined ? licenseExpiryDate : driver.licenseExpiryDate,
+            contactNumber: contactNumber !== undefined ? contactNumber : driver.contactNumber,
+            safetyScore: safetyScore !== undefined ? safetyScore : driver.safetyScore,
+            status: status !== undefined ? status : driver.status,
+        }).where(eq(drivers.id, id)).returning();
+
+        res.json(updatedDriver);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const deleteDriver = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+
+        const [driver] = await db.select().from(drivers).where(eq(drivers.id, id));
+        if (!driver) {
+            return res.status(404).json({ error: 'Driver not found' });
+        }
+
+        await db.delete(drivers).where(eq(drivers.id, id));
+        res.json({ message: 'Driver deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
