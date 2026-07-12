@@ -18,7 +18,9 @@ router.get('/', listTrips);
 router.get('/:id', getTrip);
 
 
-const canDispatch = requireRole(['dispatcher', 'fleet_manager']);
+// Per the RBAC matrix, only the dispatcher runs the trip lifecycle. Every other
+// role can read the board but not write to it.
+const canDispatch = requireRole(['dispatcher']);
 
 router.post('/', canDispatch, createTrip);
 router.post('/:id/dispatch', canDispatch, dispatchTrip);

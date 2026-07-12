@@ -5,12 +5,16 @@ import { authenticateToken, requireRole } from '../middleware/auth.js';
 const router = express.Router();
 
 router.use(authenticateToken);
-router.use(requireRole(['financial_analyst']));
 
+// Cost reports and the dashboard read expenses, so every role can list them.
 router.get('/', getExpenses);
 router.get('/:id', getExpenseById);
-router.post('/', createExpense);
-router.put('/:id', updateExpense);
-router.delete('/:id', deleteExpense);
+
+// Per the RBAC matrix, the financial analyst owns fuel and expense records.
+const canRecord = requireRole(['financial_analyst']);
+
+router.post('/', canRecord, createExpense);
+router.put('/:id', canRecord, updateExpense);
+router.delete('/:id', canRecord, deleteExpense);
 
 export default router;

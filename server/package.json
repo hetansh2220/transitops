@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx nodemon src/index.js",
-    "drizzle": "drizzle-kit"
+    "drizzle": "drizzle-kit",
+    "seed": "node src/db/seed.js",
+    "seed:reset": "node src/db/seed.js --reset"
   },
   "keywords": [],
   "author": "",
