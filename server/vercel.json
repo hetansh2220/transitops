@@ -1,5 +1,43 @@
 {
     "version": 2,
     "buildCommand": "npm run build",
-    "outputDirectory": "public"
+    "outputDirectory": "public",
+    "rewrites": [
+        {
+            "source": "/auth/:path*",
+            "destination": "/api/auth/:path*"
+        },
+        {
+            "source": "/vehicles/:path*",
+            "destination": "/api/vehicles/:path*"
+        },
+        {
+            "source": "/drivers/:path*",
+            "destination": "/api/drivers/:path*"
+        },
+        {
+            "source": "/trips/:path*",
+            "destination": "/api/trips/:path*"
+        },
+        {
+            "source": "/fuel-logs/:path*",
+            "destination": "/api/fuel-logs/:path*"
+        },
+        {
+            "source": "/maintenance/:path*",
+            "destination": "/api/maintenance/:path*"
+        },
+        {
+            "source": "/expenses/:path*",
+            "destination": "/api/expenses/:path*"
+        },
+        {
+            "source": "/dashboard/:path*",
+            "destination": "/api/dashboard/:path*"
+        },
+        {
+            "source": "/reports/:path*",
+            "destination": "/api/reports/:path*"
+        }
+    ]
 }
