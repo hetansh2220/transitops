@@ -1,3 +1,4 @@
+import { currency, kg, km } from "@/lib/format";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Play, CheckCircle, XCircle } from "lucide-react";
@@ -140,9 +141,9 @@ const TripDetailsPage = () => {
             </div>
 
             <dl className="grid gap-5 border-t border-border pt-6 sm:grid-cols-3">
-              <Detail label="Cargo Weight" value={`${number(trip.cargoWeight)} kg`} />
-              <Detail label="Planned Distance" value={trip.plannedDistance ? `${number(trip.plannedDistance)} km` : "—"} />
-              <Detail label="Revenue" value={trip.revenue ? `$${number(trip.revenue)}` : "—"} />
+              <Detail label="Cargo weight" value={kg(trip.cargoWeight)} />
+              <Detail label="Planned distance" value={km(trip.plannedDistance)} />
+              <Detail label="Revenue" value={currency(trip.revenue)} />
             </dl>
           </section>
 

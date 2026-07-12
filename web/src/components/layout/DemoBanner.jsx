@@ -13,7 +13,7 @@ import { DEMO_ACCOUNTS, DEMO_MODE, DEMO_PASSWORD } from "@/constants/demoAccount
  * Clicking a role signs straight into it.
  */
 export default function DemoBanner() {
-  const { user, login, logout } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
 
   const [dismissed, setDismissed] = useState(false);
@@ -27,10 +27,18 @@ export default function DemoBanner() {
 
     setSwitching(account.email);
     try {
-      // Drop the current session first, or the old refresh cookie lingers.
-      await logout();
-      await login({ email: account.email, password: DEMO_PASSWORD });
+      // Land on the dashboard BEFORE the role changes. Every role can see it, so
+      // the new role never arrives on a page it isn't allowed to view — which
+      // would trip RoleRoute's "no access" toast on the way out.
       navigate("/dashboard", { replace: true });
+
+      // And deliberately no logout() first: clearing the user leaves a window
+      // where ProtectedRoute sees no session and bounces to /login, flashing the
+      // login screen mid-switch. login() replaces the access token and the server
+      // overwrites the refresh cookie, so the old session is gone regardless —
+      // and the user is never null.
+      await login({ email: account.email, password: DEMO_PASSWORD });
+
       toast.success(`Signed in as ${ROLE_LABELS[account.role]}`);
     } catch {
       toast.error("Could not switch account. Has the database been seeded?");
