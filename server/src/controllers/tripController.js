@@ -442,3 +442,85 @@ export const getTrip = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const updateTrip = async (req, res) => {
+    try {
+        const id = parseId(req.params.id);
+        if (!id) return res.status(400).json({ error: 'Invalid trip id' });
+        const [trip] = await db.select().from(trips).where(eq(trips.id, id));
+        if (!trip) return res.status(404).json({ error: 'Trip not found' });
+        if (trip.status !== 'draft') {
+            return res.status(400).json({ error: 'Only draft trips can be edited' });
+        }
+        const {
+            source,
+            destination,
+            vehicleId,
+            driverId,
+            cargoWeight,
+            plannedDistance,
+            revenue,
+        } = req.body;
+        const updateData = {};
+        if (source !== undefined) updateData.source = source;
+        if (destination !== undefined) updateData.destination = destination;
+        if (plannedDistance !== undefined) {
+            if (plannedDistance !== '' && !isNonNegativeNumber(plannedDistance)) {
+                return res.status(400).json({ error: 'Planned distance must be a non-negative number' });
+            }
+            updateData.plannedDistance = plannedDistance === '' ? null : String(plannedDistance);
+        }
+        if (revenue !== undefined) {
+            if (revenue !== '' && !isNonNegativeNumber(revenue)) {
+                return res.status(400).json({ error: 'Revenue must be a non-negative number' });
+            }
+            updateData.revenue = revenue === '' ? null : String(revenue);
+        }
+        const vId = vehicleId !== undefined ? parseId(vehicleId) : trip.vehicleId;
+        const dId = driverId !== undefined ? parseId(driverId) : trip.driverId;
+        const weight = cargoWeight !== undefined ? cargoWeight : trip.cargoWeight;
+        if (vehicleId !== undefined || driverId !== undefined || cargoWeight !== undefined) {
+            if (!vId || !dId) {
+                return res.status(400).json({ error: 'A valid vehicleId and driverId are required' });
+            }
+            if (!isPositiveNumber(weight)) {
+                return res.status(400).json({ error: 'Cargo weight must be greater than 0' });
+            }
+            const [vehicle] = await db.select().from(vehicles).where(eq(vehicles.id, vId));
+            const [driver] = await db.select().from(drivers).where(eq(drivers.id, dId));
+            if (!vehicle) return res.status(404).json({ error: 'Vehicle not found' });
+            if (!driver) return res.status(404).json({ error: 'Driver not found' });
+            if (vId !== trip.vehicleId || dId !== trip.driverId || weight !== trip.cargoWeight) {
+                const tempVehicle = { ...vehicle };
+                const tempDriver = { ...driver };
+                if (vId === trip.vehicleId) tempVehicle.status = 'available';
+                if (dId === trip.driverId) tempDriver.status = 'available';
+                const violation = validateAssignment(tempVehicle, tempDriver, weight);
+                if (violation) return res.status(409).json({ error: violation });
+            }
+            updateData.vehicleId = vId;
+            updateData.driverId = dId;
+            updateData.cargoWeight = String(weight);
+        }
+        const [updatedTrip] = await db.update(trips).set(updateData).where(eq(trips.id, id)).returning();
+        res.json({ trip: updatedTrip });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const deleteTrip = async (req, res) => {
+    try {
+        const id = parseId(req.params.id);
+        if (!id) return res.status(400).json({ error: 'Invalid trip id' });
+        const [trip] = await db.select().from(trips).where(eq(trips.id, id));
+        if (!trip) return res.status(404).json({ error: 'Trip not found' });
+        if (trip.status !== 'draft' && trip.status !== 'cancelled') {
+            return res.status(400).json({ error: 'Only draft or cancelled trips can be deleted' });
+        }
+        await db.delete(trips).where(eq(trips.id, id));
+        res.json({ message: 'Trip deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

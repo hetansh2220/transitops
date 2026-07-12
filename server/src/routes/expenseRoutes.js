@@ -6,11 +6,9 @@ const router = express.Router();
 
 router.use(authenticateToken);
 
-// Cost reports and the dashboard read expenses, so every role can list them.
 router.get('/', getExpenses);
 router.get('/:id', getExpenseById);
 
-// Per the RBAC matrix, the financial analyst owns fuel and expense records.
 const canRecord = requireRole(['financial_analyst']);
 
 router.post('/', canRecord, createExpense);
