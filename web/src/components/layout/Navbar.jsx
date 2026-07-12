@@ -154,7 +154,7 @@ export default function Navbar({ mobileOpen, onMobileOpenChange }) {
       id="navbar"
       className={cn(
         "flex h-14 shrink-0 items-center gap-3",
-        "border-b border-border bg-background px-4",
+        "border-b border-border px-4",
         "transition-colors duration-150"
       )}
     >
