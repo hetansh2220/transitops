@@ -1,3 +1,4 @@
+import { currency } from "@/lib/format";
 import { Link } from "react-router-dom";
 import { Edit2, MoreHorizontal, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -70,7 +71,7 @@ const ExpenseTable = ({ expenses, canWrite, onEdit, onDelete }) => (
             {exp.description || "—"}
           </TableCell>
           <TableCell className="text-right font-medium font-numeric tabular-nums">
-            ${number(exp.amount)}
+            {currency(exp.amount)}
           </TableCell>
           <TableCell className="font-numeric tabular-nums">
             {exp.date ? new Date(exp.date).toLocaleDateString() : "—"}

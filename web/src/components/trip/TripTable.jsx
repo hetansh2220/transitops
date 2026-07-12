@@ -1,3 +1,4 @@
+import { currency } from "@/lib/format";
 import { Eye, MoreHorizontal, Play, CheckCircle, XCircle, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -74,7 +75,7 @@ const TripTable = ({
               {number(trip.cargoWeight)} kg
             </TableCell>
             <TableCell className="text-right font-numeric tabular-nums">
-              {trip.revenue ? `$${number(trip.revenue)}` : "—"}
+              {trip.revenue ? currency(trip.revenue) : "—"}
             </TableCell>
             <TableCell>
               <StatusBadge status={trip.status} />

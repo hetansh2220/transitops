@@ -20,6 +20,7 @@ import {
 } from "@/hooks/useExpenses";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useAuth } from "@/context/AuthContext";
+import { currency } from "@/lib/format";
 
 const ALL = "all";
 const number = (value) => Number(value ?? 0).toLocaleString();
@@ -123,20 +124,20 @@ const ExpenseListPage = () => {
       <section className="grid gap-4 sm:grid-cols-4">
         {[
           {
-            label: "Total Expenses",
-            value: `$${number(metrics.total.toFixed(2))}`,
+            label: "Total expenses",
+            value: currency(metrics.total),
           },
           {
-            label: "Tolls Total",
-            value: `$${number(metrics.toll.toFixed(2))}`,
+            label: "Tolls",
+            value: currency(metrics.toll),
           },
           {
-            label: "Parking Total",
-            value: `$${number(metrics.parking.toFixed(2))}`,
+            label: "Parking",
+            value: currency(metrics.parking),
           },
           {
-            label: "Permits Total",
-            value: `$${number(metrics.permit.toFixed(2))}`,
+            label: "Permits",
+            value: currency(metrics.permit),
           },
         ].map((stat) => (
           <div key={stat.label} className="rounded-lg border border-border bg-card p-4">

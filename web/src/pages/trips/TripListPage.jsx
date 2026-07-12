@@ -121,9 +121,9 @@ const TripListPage = () => {
 
       <section className="grid gap-4 sm:grid-cols-3">
         {[
-          { label: "Active Board (Fetched)", value: counts.total },
-          { label: "Currently Dispatched", value: counts.dispatched },
-          { label: "Completed (Filtered)", value: counts.completed },
+          { label: "Total trips", value: counts.total },
+          { label: "Dispatched", value: counts.dispatched },
+          { label: "Completed", value: counts.completed },
         ].map((stat) => (
           <div key={stat.label} className="rounded-lg border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">{stat.label}</p>

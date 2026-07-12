@@ -20,6 +20,7 @@ import {
 } from "@/hooks/useFuelLogs";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useAuth } from "@/context/AuthContext";
+import { currency, litres } from "@/lib/format";
 
 const ALL = "all";
 const number = (value) => Number(value ?? 0).toLocaleString();
@@ -78,7 +79,7 @@ const FuelLogListPage = () => {
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Fuel Logs</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Fuel logs</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Monitor vehicle refueling entries, aggregate consumption, and average fuel pricing.
           </p>
@@ -95,16 +96,16 @@ const FuelLogListPage = () => {
       <section className="grid gap-4 sm:grid-cols-3">
         {[
           {
-            label: "Total Liters Consumed",
-            value: `${number(metrics.totalLiters.toFixed(1))} L`,
+            label: "Total litres",
+            value: litres(metrics.totalLiters),
           },
           {
-            label: "Total Fuel Expenses",
-            value: `$${number(metrics.totalCost.toFixed(2))}`,
+            label: "Total fuel cost",
+            value: currency(metrics.totalCost),
           },
           {
-            label: "Average Price Per Liter",
-            value: `$${metrics.avgPrice.toFixed(2)}/L`,
+            label: "Average price per litre",
+            value: `${currency(metrics.avgPrice)}/L`,
           },
         ].map((stat) => (
           <div key={stat.label} className="rounded-lg border border-border bg-card p-4">

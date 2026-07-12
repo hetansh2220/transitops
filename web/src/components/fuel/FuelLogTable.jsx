@@ -1,3 +1,4 @@
+import { currency } from "@/lib/format";
 import { Link } from "react-router-dom";
 import { Edit2, MoreHorizontal, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -60,10 +61,10 @@ const FuelLogTable = ({ logs, canWrite, onEdit, onDelete }) => (
               {number(log.liters)} L
             </TableCell>
             <TableCell className="text-right font-numeric tabular-nums">
-              ${number(log.cost)}
+              {currency(log.cost)}
             </TableCell>
             <TableCell className="text-right font-numeric tabular-nums text-muted-foreground text-xs">
-              ${pRate.toFixed(2)}/L
+              {currency(pRate)}/L
             </TableCell>
             <TableCell className="font-numeric tabular-nums">
               {log.date ? new Date(log.date).toLocaleDateString() : "—"}
