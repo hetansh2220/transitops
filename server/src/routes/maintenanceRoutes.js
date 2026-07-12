@@ -6,8 +6,11 @@ const router = express.Router();
 
 router.use(authenticateToken);
 
-router.get('/', requireRole(['fleet_manager', 'dispatcher', 'financial_analyst']), getMaintenanceLogs);
-router.get('/:id', requireRole(['fleet_manager', 'dispatcher', 'financial_analyst']), getMaintenanceLogById);
+// Reads are open to every role — the dashboard and cost reports need them.
+router.get('/', getMaintenanceLogs);
+router.get('/:id', getMaintenanceLogById);
+
+// Maintenance is part of the fleet, which the fleet manager owns.
 router.post('/', requireRole(['fleet_manager']), createMaintenanceLog);
 router.put('/:id', requireRole(['fleet_manager']), updateMaintenanceLog);
 router.delete('/:id', requireRole(['fleet_manager']), deleteMaintenanceLog);

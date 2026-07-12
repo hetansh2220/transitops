@@ -73,6 +73,23 @@ export const updateDriver = async (req, res) => {
             }
         }
 
+        if (status !== undefined && status !== driver.status) {
+            // 'on_trip' belongs to the trip state machine. Letting it be set or
+            // cleared by hand would let a driver who is mid-trip be assigned to a
+            // second trip.
+            if (status === 'on_trip') {
+                return res.status(400).json({
+                    error: "Status 'on_trip' is set by dispatching a trip, not by editing the driver",
+                });
+            }
+
+            if (driver.status === 'on_trip') {
+                return res.status(409).json({
+                    error: 'Driver is on a trip. Complete or cancel the trip to change their status.',
+                });
+            }
+        }
+
         const [updatedDriver] = await db.update(drivers).set({
             userId: userId !== undefined ? userId : driver.userId,
             name: name !== undefined ? name : driver.name,
