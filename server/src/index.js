@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/authRoutes.js';
 import roleRouter from './routes/roleRoutes.js';
+import vehicleRouter from './routes/vehicleRoutes.js';
 import driverRouter from './routes/driverRoutes.js';
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/auth', authRouter);
+app.use('/api/vehicles', vehicleRouter);
 app.use('/api', roleRouter);
 app.use('/api/drivers', driverRouter);
 
