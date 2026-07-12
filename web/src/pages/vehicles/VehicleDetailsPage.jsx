@@ -1,138 +1,127 @@
-import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import VehicleStatusBadge from "@/components/vehicle/VehicleStatusBadge";
+import { useVehicle } from "@/hooks/useVehicles";
+import { listMaintenanceLogs } from "@/api/maintenance";
 
-const vehicles = [
-  {
-    id: 1,
-    plateNumber: "TX-2048",
-    make: "Mercedes-Benz",
-    model: "Sprinter",
-    year: 2022,
-    status: "Active",
-    mileage: 18420,
-    fuelType: "Diesel",
-    assignedDriver: "Daniel Brooks",
-    department: "Operations",
-    lastService: "2026-06-14",
-    nextService: "2026-09-14",
-    notes: "Excellent route reliability and clean cabin.",
-  },
-  {
-    id: 2,
-    plateNumber: "TX-4410",
-    make: "Ford",
-    model: "Transit Connect",
-    year: 2021,
-    status: "Maintenance",
-    mileage: 29140,
-    fuelType: "Gasoline",
-    assignedDriver: "Maya Chen",
-    department: "Shuttle",
-    lastService: "2026-05-11",
-    nextService: "2026-08-11",
-    notes: "Brake inspection scheduled this week.",
-  },
-  {
-    id: 3,
-    plateNumber: "TX-1187",
-    make: "Volvo",
-    model: "9700",
-    year: 2020,
-    status: "Active",
-    mileage: 61203,
-    fuelType: "Diesel",
-    assignedDriver: "Alex Rivera",
-    department: "Regional",
-    lastService: "2026-06-24",
-    nextService: "2026-09-24",
-    notes: "High-capacity coach with premium comfort package.",
-  },
-];
+const number = (value) =>
+  value === null || value === undefined ? "—" : Number(value).toLocaleString();
+
+const Detail = ({ label, value }) => (
+  <div>
+    <dt className="text-xs text-muted-foreground">{label}</dt>
+    <dd className="mt-1 text-sm font-medium">{value ?? "—"}</dd>
+  </div>
+);
 
 const VehicleDetailsPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const vehicle = useMemo(() => {
-    const numericId = Number(id);
-    return vehicles.find((item) => item.id === numericId) ?? vehicles[0];
-  }, [id]);
+  const { data: vehicle, isLoading, isError, error } = useVehicle(id);
+
+  // The vehicle's own service history — real records, not a fabricated schedule.
+  const { data: maintenance } = useQuery({
+    queryKey: ["maintenance", { vehicleId: id }],
+    queryFn: () => listMaintenanceLogs({ vehicleId: id }),
+    enabled: Boolean(id),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center gap-4 p-12 text-center">
+        <h1 className="text-lg font-semibold">Couldn&apos;t load this vehicle</h1>
+        <p className="text-sm text-muted-foreground">
+          {error.response?.data?.error ?? error.message}
+        </p>
+        <Button variant="outline" onClick={() => navigate("/vehicles")}>
+          Back to vehicles
+        </Button>
+      </div>
+    );
+  }
+
+  const logs = maintenance?.maintenanceLogs ?? [];
 
   return (
-    <div className="min-h-screen bg-white p-4 text-black sm:p-6 lg:p-8">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
-        <div className="flex items-center justify-between border border-black/10 bg-white p-4 shadow-sm">
-          <Button variant="outline" onClick={() => navigate(-1)} className="border-black text-black">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-          <div className="text-right">
-            <p className="text-xs uppercase tracking-[0.3em] text-black/60">Vehicle profile</p>
-            <p className="text-sm font-medium">{vehicle.plateNumber}</p>
-          </div>
-        </div>
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          <ArrowLeft size={16} aria-hidden="true" />
+          Back
+        </Button>
+        <VehicleStatusBadge status={vehicle.status} />
+      </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
-          <section className="border border-black/10 bg-white p-6 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-black/60">Fleet asset</p>
-                <h1 className="mt-2 text-2xl font-semibold">{vehicle.make} {vehicle.model}</h1>
-              </div>
-              <VehicleStatusBadge status={vehicle.status} />
-            </div>
+      <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
+        <section className="rounded-lg border border-border p-6">
+          <p className="text-xs text-muted-foreground">Fleet asset</p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+            {vehicle.registrationNumber}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {[vehicle.name, vehicle.model].filter(Boolean).join(" • ")}
+          </p>
 
-            <dl className="mt-6 grid gap-4 border-t border-black/10 pt-6 sm:grid-cols-2">
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-black/60">Plate number</dt>
-                <dd className="mt-1 text-sm font-medium">{vehicle.plateNumber}</dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-black/60">Year</dt>
-                <dd className="mt-1 text-sm font-medium">{vehicle.year}</dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-black/60">Mileage</dt>
-                <dd className="mt-1 text-sm font-medium">{vehicle.mileage.toLocaleString()} mi</dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-black/60">Fuel type</dt>
-                <dd className="mt-1 text-sm font-medium">{vehicle.fuelType}</dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-black/60">Assigned driver</dt>
-                <dd className="mt-1 text-sm font-medium">{vehicle.assignedDriver}</dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-black/60">Department</dt>
-                <dd className="mt-1 text-sm font-medium">{vehicle.department}</dd>
-              </div>
-            </dl>
-          </section>
+          <dl className="mt-6 grid gap-5 border-t border-border pt-6 sm:grid-cols-2">
+            <Detail label="Type" value={vehicle.type} />
+            <Detail label="Region" value={vehicle.region} />
+            <Detail
+              label="Max load capacity"
+              value={`${number(vehicle.maxLoadCapacity)} kg`}
+            />
+            <Detail label="Odometer" value={`${number(vehicle.odometer)} km`} />
+            <Detail label="Acquisition cost" value={number(vehicle.acquisitionCost)} />
+            <Detail
+              label="Added"
+              value={
+                vehicle.createdAt
+                  ? new Date(vehicle.createdAt).toLocaleDateString()
+                  : null
+              }
+            />
+          </dl>
+        </section>
 
-          <aside className="space-y-4">
-            <div className="border border-black/10 bg-white p-5 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.3em] text-black/60">Service schedule</p>
-              <div className="mt-4 space-y-3 text-sm">
-                <div className="border-b border-black/10 pb-3">
-                  <p className="text-black/60">Last service</p>
-                  <p className="mt-1 font-medium">{vehicle.lastService}</p>
-                </div>
-                <div>
-                  <p className="text-black/60">Next service</p>
-                  <p className="mt-1 font-medium">{vehicle.nextService}</p>
-                </div>
-              </div>
-            </div>
-            <div className="border border-black/10 bg-white p-5 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.3em] text-black/60">Notes</p>
-              <p className="mt-3 text-sm leading-6 text-black/75">{vehicle.notes}</p>
-            </div>
-          </aside>
-        </div>
+        <aside className="rounded-lg border border-border p-5">
+          <p className="text-xs text-muted-foreground">Maintenance history</p>
+
+          {logs.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">
+              No maintenance recorded for this vehicle.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3 text-sm" role="list">
+              {logs.map((log) => (
+                <li
+                  key={log.id}
+                  className="flex items-start justify-between gap-3 border-b border-border pb-3 last:border-0 last:pb-0"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{log.serviceType}</p>
+                    <p className="text-xs text-muted-foreground">{log.date}</p>
+                  </div>
+                  <Badge variant={log.status === "open" ? "default" : "outline"}>
+                    {log.status}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </aside>
       </div>
     </div>
   );
