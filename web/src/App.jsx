@@ -1,13 +1,8 @@
 import React from 'react'
-import { Button } from '@/components/ui/button'
+import VehicleListPage from '@/pages/vehicles/VehicleListPage'
 
 function App() {
-  return (
-    <div>App
-
-      <Button>Click here</Button>
-    </div>
-  )
+  return <VehicleListPage />
 }
 
 export default App
